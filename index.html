@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Book Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      /* Lighter tan earth-tone palette */
+      --bg: #e6d9c7;
+      --bg-soft: #f0e3d2;
+      --card: #f9efe1;
+      --accent: #c59355;           /* warm tan/gold */
+      --accent-soft: rgba(197, 147, 85, 0.16);
+      --accent-strong: #b57834;
+      --text: #372b21;
+      --text-muted: #8a745f;
+      --border: #d1c0aa;
+      --danger: #e27b6b;
+      --shadow-soft: 8px 8px 18px rgba(181, 163, 139, 0.8),
+                     -6px -6px 14px rgba(255, 255, 255, 0.9);
+      --shadow-soft-inset: inset 2px 2px 5px rgba(196, 178, 151, 0.9),
+                           inset -2px -2px 5px rgba(255, 255, 255, 0.9);
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: radial-gradient(circle at top, #f0e3d2 0, #e6d9c7 40%, #ddcfbc 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 8px 8px 70px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 10px 6px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #fffaf2 0, #f1d4aa 40%, #c59355 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 4px 4px 10px rgba(184, 164, 134, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .brand-icon span {
+      font-weight: 800;
+      font-size: 14px;
+      color: #4a351f;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-text strong {
+      font-size: 18px;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pill-stats {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(203, 184, 160, 0.9);
+      color: var(--text-muted);
+      background: #f4e6d5;
+      backdrop-filter: blur(10px);
+      box-shadow: 4px 4px 10px rgba(189, 171, 148, 0.9),
+                  -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+
+    main {
+      flex: 1;
+      padding: 4px 4px 0;
+    }
+
+    .view {
+      display: none;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 4px 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .card {
+      background: #f9efe1;
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(213, 195, 172, 0.9);
+      padding: 12px 12px 10px;
+      box-shadow: var(--shadow-soft);
+      margin: 0 4px 12px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-header h2 {
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .card-header small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(197, 147, 85, 0.85);
+      box-shadow: 2px 2px 6px rgba(195, 176, 151, 0.9),
+                  -1px -1px 3px rgba(255, 255, 255, 0.9);
+    }
+
+    .chip-muted {
+      background: #f3e4d2;
+      border: 1px solid rgba(209, 191, 169, 0.9);
+      color: var(--text-muted);
+      box-shadow: 2px 2px 6px rgba(193, 175, 152, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #f0e2d0;
+      box-shadow: inset 2px 2px 4px rgba(204, 183, 159, 0.9),
+                  inset -1px -1px 3px rgba(255, 255, 255, 0.9);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #c59355, #f1d4aa);
+      transition: width 0.2s ease-out;
+    }
+
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .book-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px;
+      border-radius: var(--radius-lg);
+      background: #f6ebdd;
+      border: 1px solid rgba(215, 198, 176, 0.9);
+      box-shadow: 5px 5px 12px rgba(189, 170, 146, 0.9),
+                  -4px -4px 10px rgba(255, 255, 255, 0.9);
+    }
+
+    .book-cover {
+      width: 50px;
+      height: 75px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid rgba(212, 191, 166, 0.9);
+      box-shadow: 3px 3px 7px rgba(186, 167, 144, 0.9),
+                  -2px -2px 4px rgba(255, 255, 255, 0.9);
+      background: #f0e2d0;
+    }
+
+    .book-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .book-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .book-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .book-author {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .book-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .stars {
+      display: inline-flex;
+      gap: 1px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .stars span {
+      opacity: 0.3;
+      text-shadow: 1px 1px 2px rgba(212, 193, 171, 0.9);
+    }
+
+    .stars span.filled {
+      opacity: 1;
+      color: #e2b969;
+      text-shadow: 0 0 12px rgba(226, 185, 105, 0.8);
+    }
+
+    .book-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      gap: 8px;
+    }
+
+    .shelf-pill {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(211, 193, 172, 0.9);
+      color: var(--text-muted);
+      white-space: nowrap;
+      background: #f8eee0;
+      box-shadow: 2px 2px 6px rgba(193, 175, 152, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    /* Neumorphic buttons in tan */
+    .btn {
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      background: #f3e5d3;
+      color: #4a351f;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 72px;
+      box-shadow: 5px 5px 12px rgba(189, 171, 148, 0.9),
+                  -4px -4px 9px rgba(255, 255, 255, 0.9);
+      border: 1px solid rgba(213, 195, 173, 0.9);
+      transition: transform 0.07s ease-out,
+                  box-shadow 0.07s ease-out,
+                  background 0.15s ease-out;
+    }
+
+    .btn:hover {
+      background: #f7ecdd;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: var(--shadow-soft-inset);
+    }
+
+    .btn-ghost {
+      background: #f1e2d0;
+      color: var(--text-muted);
+      border: 1px solid rgba(211, 193, 173, 0.9);
+      box-shadow: 3px 3px 8px rgba(188, 170, 147, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+      min-width: 0;
+      padding-inline: 10px;
+    }
+
+    .btn-sm {
+      padding: 5px 11px;
+      font-size: 11px;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-danger {
+      background: #f4dad3;
+      color: #5b3128;
+      border-color: rgba(222, 162, 149, 0.9);
+      box-shadow: 5px 5px 12px rgba(194, 168, 158, 0.9),
+                  -4px -4px 9px rgba(255, 255, 255, 0.9);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill-option {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(210, 192, 172, 0.9);
+      background: #f4e6d5;
+      color: var(--text-muted);
+      cursor: pointer;
+      box-shadow: 3px 3px 8px rgba(191, 173, 151, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .pill-option.active {
+      background: var(--accent-soft);
+      border-color: rgba(197, 147, 85, 0.9);
+      color: var(--accent);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(214, 196, 175, 0.9);
+      background: #f7ecde;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      box-shadow: inset 3px 3px 6px rgba(201, 182, 159, 0.9),
+                  inset -3px -3px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    textarea {
+      border-radius: 14px;
+      resize: vertical;
+      min-height: 60px;
+      font-size: 12px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(175, 154, 129, 0.9);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin: 4px 4px 10px;
+      padding: 2px;
+      border-radius: 999px;
+      background: #f5e7d7;
+      border: 1px solid rgba(212, 194, 174, 0.9);
+      box-shadow: 4px 4px 10px rgba(190, 172, 150, 0.9),
+                  -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+
+    .tab {
+      flex: 1;
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 6px 0;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: radial-gradient(circle at top, rgba(197, 147, 85, 0.2) 0, #f4e3d2 65%);
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: 2px 2px 6px rgba(191, 173, 151, 0.9),
+                  -2px -2px 5px rgba(255, 255, 255, 0.9);
+    }
+
+    .empty {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 6px 2px 2px;
+    }
+
+    footer.navbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      border-top: 1px solid rgba(210, 193, 174, 0.9);
+      background: rgba(247, 236, 222, 0.96);
+      backdrop-filter: blur(16px);
+      z-index: 40;
+      box-shadow: 0 -4px 18px rgba(184, 165, 143, 0.9);
+    }
+
+    .nav-inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 18px 10px;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 9px;
+      padding: 4px 0;
+      cursor: pointer;
+      transition: color 0.15s ease-out, transform 0.07s ease-out;
+    }
+
+    .nav-btn span.icon {
+      font-size: 17px;
+      text-shadow: 2px 2px 4px rgba(238, 222, 204, 0.9);
+    }
+
+    .nav-btn.active {
+      color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active span.icon {
+      text-shadow: 0 0 12px rgba(197, 147, 85, 0.9);
+    }
+
+    /* Modal/backdrop reused for details & scanner */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(137, 118, 95, 0.35);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      background: radial-gradient(circle at top, #f9efe1 0, #f3e5d3 55%, #ecddc8 100%);
+      border-radius: 22px 22px 0 0;
+      border: 1px solid rgba(210, 193, 173, 0.95);
+      box-shadow: 0 -16px 40px rgba(172, 154, 132, 0.95);
+      padding: 10px 14px 18px;
+      max-height: 88vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .modal-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .modal-close {
+      border-radius: 999px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(210, 190, 168, 0.9);
+      background: #f3e5d3;
+      color: var(--text-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 4px 4px 9px rgba(189, 171, 148, 0.9),
+                  -3px -3px 7px rgba(255, 255, 255, 0.9);
+      transition: transform 0.07s ease-out, box-shadow 0.07s ease-out;
+    }
+
+    .modal-close:active {
+      transform: translateY(1px);
+      box-shadow: var(--shadow-soft-inset);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-top {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .modal-cover {
+      width: 72px;
+      height: 108px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid rgba(210, 190, 168, 0.9);
+      background: #f0e2d0;
+      box-shadow: 4px 4px 10px rgba(187, 169, 145, 0.9),
+                  -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+
+    .modal-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-top-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .modal-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .reviews-list {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .review-item {
+      font-size: 11px;
+      background: #f6ebdd;
+      border-radius: 10px;
+      border: 1px solid rgba(210, 192, 171, 0.9);
+      padding: 6px 8px;
+      box-shadow: 3px 3px 8px rgba(190, 172, 150, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .review-item time {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .modal-description {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .badge-year {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(211, 193, 173, 0.9);
+      background: #f5e7d7;
+      color: var(--text-muted);
+      box-shadow: 3px 3px 8px rgba(191, 173, 151, 0.9),
+                  -2px -2px 6px rgba(255, 255, 255, 0.9);
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stat-card {
+      background: #f6ebdd;
+      border-radius: 16px;
+      padding: 8px;
+      border: 1px solid rgba(212, 194, 174, 0.95);
+      text-align: center;
+      box-shadow: 4px 4px 10px rgba(190, 171, 148, 0.9),
+                  -3px -3px 8px rgba(255, 255, 255, 0.9);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    @media (min-width: 480px) {
+      .app-shell {
+        padding-bottom: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header>
+      <div class="brand">
+        <div class="brand-icon"><span>MV</span></div>
+        <div class="brand-text">
+          <strong>MyVolumes</strong>
+          <small>Track what you read</small>
+        </div>
+      </div>
+      <div class="pill-stats" id="headerStats">
+        0 books • 0 this year
+      </div>
+    </header>
+
+    <main>
+      <!-- HOME VIEW -->
+      <section id="view-home" class="view active">
+        <div class="section-title">
+          Today
+          <span id="homeSummary">Reading 0 • Goal 0</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Currently Reading</h2>
+            <small id="homeReadingCount">0 books</small>
+          </div>
+          <div id="homeReadingList" class="list"></div>
+          <div class="empty" id="homeReadingEmpty">
+            You don't have anything in <b>Reading</b> yet. Add a book and move it to this shelf.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Quick Add</h2>
+            <small>Just title & author</small>
+          </div>
+          <div class="input-row">
+            <input id="quickTitle" type="text" placeholder="Book title" />
+            <input id="quickAuthor" type="text" placeholder="Author" />
+          </div>
+          <button class="btn btn-full btn-sm" id="quickAddBtn">
+            + Add to “Want to Read”
+          </button>
+          <div class="hint">
+            For covers, descriptions and pages, use the <b>Discover</b> tab.
+          </div>
+        </div>
+      </section>
+
+      <!-- SHELVES VIEW -->
+      <section id="view-shelves" class="view">
+        <div class="section-title">
+          My Shelves
+          <span id="shelvesSummary"></span>
+        </div>
+
+        <div class="tabs" id="shelfTabs">
+          <button class="tab active" data-shelf="all">All</button>
+          <button class="tab" data-shelf="want">Want</button>
+          <button class="tab" data-shelf="reading">Reading</button>
+          <button class="tab" data-shelf="read">Read</button>
+        </div>
+
+        <div class="card">
+          <div id="shelvesList" class="list"></div>
+          <div class="empty" id="shelvesEmpty">
+            No books match this shelf yet.
+          </div>
+        </div>
+      </section>
+
+      <!-- DISCOVER VIEW -->
+      <section id="view-discover" class="view">
+        <div class="section-title">
+          Discover & Add
+          <span>Online lookup + local</span>
+        </div>
+
+        <!-- ISBN / Scan card -->
+        <div class="card">
+          <div class="card-header">
+            <h2>ISBN / Code</h2>
+            <small>Scan or type</small>
+          </div>
+          <div class="input-row">
+            <input id="isbnInput" type="text" inputmode="numeric" pattern="[0-9Xx\- ]*" placeholder="ISBN-10 / ISBN-13 or code" />
+            <button class="btn btn-sm" id="isbnLookupBtn">Lookup</button>
+          </div>
+          <button class="btn btn-full btn-sm" id="scanBtn" style="margin-top:6px;">
+            📷 Scan QR / Barcode
+          </button>
+          <div class="hint">
+            Scans usually work with the barcode on the back of the book (ISBN-13). If scanning fails, just type the digits.
+          </div>
+        </div>
+
+        <!-- Online title/author search -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Online Book Search</h2>
+            <small>Title or author (online)</small>
+          </div>
+          <div class="input-row">
+            <input id="onlineSearchInput" type="search" placeholder="Search books online…" />
+            <button class="btn btn-sm" id="onlineSearchBtn">Search</button>
+          </div>
+          <div class="hint">
+            Uses free public book data (Google Books). Tap a result to add it to your shelves.
+          </div>
+          <div id="onlineResultsList" class="list" style="margin-top:10px;"></div>
+          <div class="empty" id="onlineResultsEmpty">
+            No online results yet. Try searching for a title or author.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Search your library</h2>
+            <small>Title or author</small>
+          </div>
+          <input id="searchInput" type="search" placeholder="Search…" />
+          <div class="hint">
+            This searches only the books you've added on this device.
+          </div>
+
+          <div id="discoverList" class="list" style="margin-top:10px;"></div>
+          <div class="empty" id="discoverEmpty">
+            Nothing matches your local library search yet.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Add a book (manual)</h2>
+            <small>When lookup isn't enough</small>
+          </div>
+          <input id="addTitle" type="text" placeholder="Title *" />
+          <input id="addAuthor" type="text" placeholder="Author *" />
+          <input id="addYear" type="number" min="0" max="9999" placeholder="Year (optional)" />
+          <input id="addPages" type="number" min="1" placeholder="Total pages (optional)" />
+          <input id="addCover" type="url" placeholder="Cover image URL (optional)" />
+          <textarea id="addDescription" placeholder="Short description or notes (optional)"></textarea>
+          <div class="hint">
+            New books start on the <b>Want to Read</b> shelf by default.
+          </div>
+          <button class="btn btn-full btn-sm" id="addBookBtn">
+            + Add book
+          </button>
+        </div>
+      </section>
+
+      <!-- PROFILE VIEW -->
+      <section id="view-profile" class="view">
+        <div class="section-title">
+          Profile
+          <span>Local to this device</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Reader</h2>
+            <small>Basic stats</small>
+          </div>
+          <div class="profile-row">
+            <div style="flex:1;">
+              <label class="hint" style="margin-top:0;">Display name</label>
+              <input id="profileName" type="text" />
+            </div>
+            <button class="btn btn-sm btn-ghost" id="profileSaveBtn">
+              Save
+            </button>
+          </div>
+
+          <div class="profile-row">
+            <div style="flex:1;">
+              <label class="hint" style="margin-top:0;">Yearly reading goal (books)</label>
+              <input id="profileGoal" type="number" min="0" />
+            </div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Books</div>
+              <div class="stat-value" id="statTotalBooks">0</div>
+              <div class="stat-sub">In your library</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Read</div>
+              <div class="stat-value" id="statRead">0</div>
+              <div class="stat-sub">Marked as read</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">This Year</div>
+              <div class="stat-value" id="statYearCount">0</div>
+              <div class="stat-sub" id="statYearGoal">Goal: 0</div>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            This app uses <b>localStorage</b>. Clearing browser data will reset everything.
+          </div>
+
+          <button class="btn btn-full btn-sm btn-danger" id="wipeDataBtn" style="margin-top:10px;">
+            Wipe all local data
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- BOOK DETAILS MODAL -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title" id="modalTitle">Book title</div>
+          <div class="modal-sub" id="modalAuthor">Author</div>
+        </div>
+        <button class="modal-close" id="modalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-top">
+          <div class="modal-cover">
+            <img id="modalCover" src="" alt="Cover" />
+          </div>
+          <div class="modal-top-info">
+            <div>
+              <div class="modal-section-title">Shelf</div>
+              <div id="modalShelfOptions" class="pill-row">
+              </div>
+            </div>
+
+            <div>
+              <div class="modal-section-title" style="margin-top:6px;">Rating</div>
+              <div class="stars" id="modalStars">
+                <span data-rating="1">★</span>
+                <span data-rating="2">★</span>
+                <span data-rating="3">★</span>
+                <span data-rating="4">★</span>
+                <span data-rating="5">★</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="modal-section-title" style="margin-top:6px;">Progress</div>
+              <div class="input-row">
+                <input id="modalPagesRead" type="number" min="0" placeholder="Pages read" />
+                <input id="modalTotalPages" type="number" min="1" placeholder="Total" />
+              </div>
+              <div class="hint" id="modalProgressHint"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-row" style="margin-top:10px;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="modalProgressFill"></div>
+          </div>
+          <div class="progress-text" id="modalProgressText">0%</div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <div class="badge-year" id="modalYearBadge">Year: —</div>
+          <button class="btn btn-sm btn-ghost" id="modalSaveProgressBtn">
+            Save progress
+          </button>
+        </div>
+
+        <div>
+          <div class="modal-section-title" style="margin-top:10px;">Notes / Description</div>
+          <div class="modal-description" id="modalDescription">
+            No description yet for this title.
+          </div>
+        </div>
+
+        <div>
+          <div class="modal-section-title" style="margin-top:10px;">Reviews</div>
+          <div class="reviews-list" id="modalReviewsList"></div>
+          <div class="empty" id="modalReviewsEmpty">
+            No reviews yet. Add your thoughts.
+          </div>
+          <textarea id="modalReviewText" placeholder="What did you think?"></textarea>
+          <button class="btn btn-full btn-sm" id="modalAddReviewBtn" style="margin-top:4px;">
+            Add review
+          </button>
+        </div>
+
+        <button class="btn btn-full btn-sm" id="modalShareBtn" style="margin-top:8px;">
+          Share book details
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANNER MODAL -->
+  <div id="scanBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title">Scan code</div>
+          <div class="modal-sub">Point your camera at a barcode or QR code</div>
+        </div>
+        <button class="modal-close" id="scanCloseBtn">&times;</button>
+      </div>
+      <div id="scanReader" style="width:100%;"></div>
+      <div class="hint" style="margin-top:8px;">
+        Works best with the ISBN barcode on the back of the book. If it has trouble, move closer or try manual entry.
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVBAR -->
+  <footer class="navbar">
+    <div class="nav-inner" id="bottomNav">
+      <button class="nav-btn active" data-view="home">
+        <span class="icon">🏠</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" data-view="shelves">
+        <span class="icon">📚</span>
+        <span>Shelves</span>
+      </button>
+      <button class="nav-btn" data-view="discover">
+        <span class="icon">🔍</span>
+        <span>Discover</span>
+      </button>
+      <button class="nav-btn" data-view="profile">
+        <span class="icon">👤</span>
+        <span>Profile</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- QR / barcode scanner library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    const STORAGE_KEY = "mvBookAppDataV1";
+
+    let state = {
+      books: [],
+      user: {
+        name: "You",
+        yearlyGoal: 20,
+        booksReadThisYear: 0,
+      },
+    };
+
+    let currentView = "home";
+    let currentBookId = null;
+    let html5Scanner = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          state = Object.assign(state, data);
+        } else {
+          seedSampleData();
+        }
+      } catch (e) {
+        console.warn("Failed to load state, seeding sample data", e);
+        seedSampleData();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function seedSampleData() {
+      const sampleBooks = [
+        {
+          id: "b1",
+          title: "The Pragmatic Programmer",
+          author: "Andrew Hunt, David Thomas",
+          year: 1999,
+          shelf: "reading",
+          rating: 4,
+          description:
+            "Classic book about the craft and mindset of modern software development.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/41as+WafrFL._SX377_BO1,204,203,200_.jpg",
+          pagesRead: 120,
+          totalPages: 320,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+        {
+          id: "b2",
+          title: "Deep Work",
+          author: "Cal Newport",
+          year: 2016,
+          shelf: "want",
+          rating: 0,
+          description:
+            "On the value of focused, distraction-free work in a noisy world.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/41g5c5u5v8L._SX329_BO1,204,203,200_.jpg",
+          pagesRead: 0,
+          totalPages: 304,
+          reviews: [],
+          addedAt: Date.now() - 86400000 * 3,
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+        {
+          id: "b3",
+          title: "Atomic Habits",
+          author: "James Clear",
+          year: 2018,
+          shelf: "read",
+          rating: 5,
+          description:
+            "A practical framework for building good habits and breaking bad ones using small, incremental changes.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/51-uspgqWIL._SX328_BO1,204,203,200_.jpg",
+          pagesRead: 250,
+          totalPages: 250,
+          reviews: [
+            {
+              text: "Super practical, easy to implement ideas. Great for tweaking routines.",
+              createdAt: Date.now() - 86400000 * 2,
+            },
+          ],
+          addedAt: Date.now() - 86400000 * 10,
+          finishedAt: new Date().getFullYear(),
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+      ];
+      state.books = sampleBooks;
+      state.user.booksReadThisYear = 1;
+      saveState();
+    }
+
+    function setView(view) {
+      currentView = view;
+
+      document.querySelectorAll(".view").forEach((v) => {
+        v.classList.toggle("active", v.id === "view-" + view);
+      });
+
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+
+      renderAll();
+    }
+
+    function renderAll() {
+      renderHeaderStats();
+      renderHome();
+      renderShelves();
+      renderDiscover();
+      renderProfile();
+    }
+
+    function renderHeaderStats() {
+      const total = state.books.length;
+      const yearCount = state.user.booksReadThisYear || 0;
+      const headerStats = document.getElementById("headerStats");
+      headerStats.textContent = total + " books • " + yearCount + " this year";
+    }
+
+    function renderHome() {
+      const reading = state.books.filter((b) => b.shelf === "reading");
+      const homeReadingList = document.getElementById("homeReadingList");
+      const homeReadingEmpty = document.getElementById("homeReadingEmpty");
+      const homeReadingCount = document.getElementById("homeReadingCount");
+      const homeSummary = document.getElementById("homeSummary");
+
+      homeReadingList.innerHTML = "";
+
+      homeReadingCount.textContent =
+        reading.length === 1 ? "1 book" : reading.length + " books";
+
+      const goal = state.user.yearlyGoal || 0;
+      const yearCount = state.user.booksReadThisYear || 0;
+      homeSummary.textContent = "Reading " + reading.length + " • Goal " + yearCount + "/" + goal;
+
+      if (!reading.length) {
+        homeReadingEmpty.style.display = "block";
+        return;
+      }
+      homeReadingEmpty.style.display = "none";
+
+      reading.forEach((book) => {
+        homeReadingList.appendChild(createBookItem(book));
+      });
+    }
+
+    function renderShelves() {
+      const summaryEl = document.getElementById("shelvesSummary");
+      const listEl = document.getElementById("shelvesList");
+      const emptyEl = document.getElementById("shelvesEmpty");
+
+      const activeTab = document.querySelector("#shelfTabs .tab.active");
+      const shelfFilter = activeTab ? activeTab.dataset.shelf : "all";
+
+      let books = [].concat(state.books);
+
+      if (shelfFilter === "want") books = books.filter((b) => b.shelf === "want");
+      if (shelfFilter === "reading")
+        books = books.filter((b) => b.shelf === "reading");
+      if (shelfFilter === "read") books = books.filter((b) => b.shelf === "read");
+
+      const total = state.books.length;
+      const wantCount = state.books.filter((b) => b.shelf === "want").length;
+      const readingCount = state.books.filter((b) => b.shelf === "reading").length;
+      const readCount = state.books.filter((b) => b.shelf === "read").length;
+
+      summaryEl.textContent = total + " total • " + wantCount + " want • " + readingCount + " reading • " + readCount + " read";
+
+      listEl.innerHTML = "";
+      if (!books.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      books.forEach((book) => listEl.appendChild(createBookItem(book)));
+    }
+
+    function renderDiscover() {
+      const searchQuery = document
+        .getElementById("searchInput")
+        .value.trim()
+        .toLowerCase();
+      const listEl = document.getElementById("discoverList");
+      const emptyEl = document.getElementById("discoverEmpty");
+
+      let books = [].concat(state.books);
+
+      if (searchQuery) {
+        books = books.filter((b) => {
+          return (
+            b.title.toLowerCase().includes(searchQuery) ||
+            b.author.toLowerCase().includes(searchQuery)
+          );
+        });
+      }
+
+      listEl.innerHTML = "";
+      if (!books.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      books.forEach((book) => listEl.appendChild(createBookItem(book)));
+    }
+
+    function renderProfile() {
+      const nameInput = document.getElementById("profileName");
+      const goalInput = document.getElementById("profileGoal");
+      const statTotalBooks = document.getElementById("statTotalBooks");
+      const statRead = document.getElementById("statRead");
+      const statYearCount = document.getElementById("statYearCount");
+      const statYearGoal = document.getElementById("statYearGoal");
+
+      nameInput.value = state.user.name || "You";
+      goalInput.value = state.user.yearlyGoal || 0;
+
+      const total = state.books.length;
+      const readCount = state.books.filter((b) => b.shelf === "read").length;
+      const yearCount = state.user.booksReadThisYear || 0;
+      const goal = state.user.yearlyGoal || 0;
+
+      statTotalBooks.textContent = total;
+      statRead.textContent = readCount;
+      statYearCount.textContent = yearCount;
+      statYearGoal.textContent = "Goal: " + goal;
+    }
+
+    function createBookItem(book) {
+      const item = document.createElement("div");
+      item.className = "book-item";
+
+      const cover = document.createElement("div");
+      cover.className = "book-cover";
+      const img = document.createElement("img");
+      img.src =
+        book.coverUrl ||
+        "https://dummyimage.com/200x300/f7ecde/8a745f.png&text=No+Cover";
+      img.alt = book.title;
+      cover.appendChild(img);
+
+      const main = document.createElement("div");
+      main.className = "book-main";
+
+      const title = document.createElement("div");
+      title.className = "book-title";
+      title.textContent = book.title;
+
+      const author = document.createElement("div");
+      author.className = "book-author";
+      author.textContent = book.author || "Unknown author";
+
+      const meta = document.createElement("div");
+      meta.className = "book-meta";
+
+      const yearSpan = document.createElement("span");
+      yearSpan.textContent = book.year ? book.year : "Year —";
+      meta.appendChild(yearSpan);
+
+      const stars = document.createElement("div");
+      stars.className = "stars";
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.textContent = "★";
+        if (book.rating && i <= book.rating) s.classList.add("filled");
+        stars.appendChild(s);
+      }
+      meta.appendChild(stars);
+
+      const actions = document.createElement("div");
+      actions.className = "book-actions";
+
+      const shelfPill = document.createElement("div");
+      shelfPill.className = "shelf-pill";
+      shelfPill.textContent = formatShelfName(book.shelf);
+
+      const detailsBtn = document.createElement("button");
+      detailsBtn.className = "btn btn-sm";
+      detailsBtn.textContent = "Details";
+      detailsBtn.addEventListener("click", () => openBookModal(book.id));
+
+      actions.appendChild(shelfPill);
+      actions.appendChild(detailsBtn);
+
+      if (book.totalPages) {
+        const progressRow = document.createElement("div");
+        progressRow.className = "progress-row";
+        const bar = document.createElement("div");
+        bar.className = "progress-bar";
+        const fill = document.createElement("div");
+        fill.className = "progress-fill";
+        const pct = Math.min(
+          100,
+          Math.round((book.pagesRead || 0) * 100 / book.totalPages)
+        );
+        fill.style.width = pct + "%";
+        bar.appendChild(fill);
+
+        const text = document.createElement("div");
+        text.className = "progress-text";
+        text.textContent = pct + "%";
+
+        progressRow.appendChild(bar);
+        progressRow.appendChild(text);
+        main.appendChild(progressRow);
+      }
+
+      main.appendChild(title);
+      main.appendChild(author);
+      main.appendChild(meta);
+      main.appendChild(actions);
+
+      item.appendChild(cover);
+      item.appendChild(main);
+
+      return item;
+    }
+
+    function formatShelfName(shelf) {
+      if (shelf === "want") return "Want to Read";
+      if (shelf === "reading") return "Reading";
+      if (shelf === "read") return "Read";
+      return "Unsorted";
+    }
+
+    function openBookModal(bookId) {
+      const book = state.books.find((b) => b.id === bookId);
+      if (!book) return;
+      currentBookId = bookId;
+
+      document.getElementById("modalTitle").textContent = book.title;
+      document.getElementById("modalAuthor").textContent =
+        book.author || "Unknown author";
+
+      const coverEl = document.getElementById("modalCover");
+      coverEl.src =
+        book.coverUrl ||
+        "https://dummyimage.com/300x450/f7ecde/8a745f.png&text=No+Cover";
+
+      const shelves = [
+        { id: "want", label: "Want to Read" },
+        { id: "reading", label: "Reading" },
+        { id: "read", label: "Read" },
+      ];
+      const shelfEl = document.getElementById("modalShelfOptions");
+      shelfEl.innerHTML = "";
+      shelves.forEach((s) => {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "pill-option" + (book.shelf === s.id ? " active" : "");
+        pill.textContent = s.label;
+        pill.dataset.shelf = s.id;
+        pill.addEventListener("click", () => {
+          book.shelf = s.id;
+          if (s.id === "read" && !book.finishedAt) {
+            book.finishedAt = new Date().getFullYear();
+            state.user.booksReadThisYear =
+              (state.user.booksReadThisYear || 0) + 1;
+          }
+          saveState();
+          openBookModal(book.id);
+        });
+        shelfEl.appendChild(pill);
+      });
+
+      const starContainer = document.getElementById("modalStars");
+      starContainer.querySelectorAll("span").forEach((span) => {
+        const rating = Number(span.getAttribute("data-rating"));
+        span.classList.toggle("filled", book.rating && rating <= book.rating);
+      });
+
+      document.getElementById("modalPagesRead").value =
+        book.pagesRead != null ? book.pagesRead : "";
+      document.getElementById("modalTotalPages").value =
+        book.totalPages != null ? book.totalPages : "";
+
+      const pct =
+        book.totalPages && book.pagesRead != null
+          ? Math.min(100, Math.round(book.pagesRead * 100 / book.totalPages))
+          : 0;
+
+      document.getElementById("modalProgressFill").style.width = pct + "%";
+      document.getElementById("modalProgressText").textContent = pct + "%";
+      document.getElementById(
+        "modalProgressHint"
+      ).textContent = book.totalPages
+        ? (book.pagesRead || 0) + " / " + book.totalPages + " pages"
+        : "Set total pages to track progress.";
+
+      const yearBadge = document.getElementById("modalYearBadge");
+      yearBadge.textContent = book.year ? "Year: " + book.year : "Year: —";
+
+      document.getElementById("modalDescription").textContent =
+        book.description || "No description yet for this title.";
+
+      const reviewsList = document.getElementById("modalReviewsList");
+      const reviewsEmpty = document.getElementById("modalReviewsEmpty");
+      reviewsList.innerHTML = "";
+      if (book.reviews && book.reviews.length) {
+        reviewsEmpty.style.display = "none";
+        book.reviews
+          .slice()
+          .reverse()
+          .forEach((r) => {
+            const item = document.createElement("div");
+            item.className = "review-item";
+            const time = document.createElement("time");
+            const d = new Date(r.createdAt || Date.now());
+            time.textContent = d.toLocaleDateString();
+            const text = document.createElement("div");
+            text.textContent = r.text;
+            item.appendChild(time);
+            item.appendChild(text);
+            reviewsList.appendChild(item);
+          });
+      } else {
+        reviewsEmpty.style.display = "block";
+      }
+
+      document.getElementById("modalReviewText").value = "";
+
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
+
+    function closeBookModal() {
+      document.getElementById("modalBackdrop").classList.remove("show");
+      currentBookId = null;
+    }
+
+    function openScanner() {
+      const backdrop = document.getElementById("scanBackdrop");
+      backdrop.classList.add("show");
+
+      const scanContainer = document.getElementById("scanReader");
+      scanContainer.innerHTML = "";
+
+      if (typeof Html5QrcodeScanner === "undefined") {
+        alert("Scanner library failed to load. Check your connection.");
+        return;
+      }
+
+      const config = {
+        fps: 8,
+        qrbox: { width: 250, height: 250 },
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
+      };
+
+      html5Scanner = new Html5QrcodeScanner("scanReader", config, false);
+      html5Scanner.render(onScanSuccess, onScanError);
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      if (!html5Scanner) return;
+      html5Scanner.clear().then(() => {
+        html5Scanner = null;
+        document.getElementById("scanBackdrop").classList.remove("show");
+        document.getElementById("scanReader").innerHTML = "";
+        handleScannedCode(decodedText);
+      }).catch((err) => {
+        console.error(err);
+        document.getElementById("scanBackdrop").classList.remove("show");
+      });
+    }
+
+    function onScanError(errorMessage) {
+      // Quietly ignore frequent decode errors
+    }
+
+    function closeScanner() {
+      const backdrop = document.getElementById("scanBackdrop");
+      if (html5Scanner) {
+        html5Scanner.clear().then(() => {
+          html5Scanner = null;
+          document.getElementById("scanReader").innerHTML = "";
+          backdrop.classList.remove("show");
+        }).catch((err) => {
+          console.error(err);
+          backdrop.classList.remove("show");
+        });
+      } else {
+        backdrop.classList.remove("show");
+        document.getElementById("scanReader").innerHTML = "";
+      }
+    }
+
+    function handleScannedCode(text) {
+      const cleaned = text.replace(/[^0-9Xx]/g, "");
+      const isbnInput = document.getElementById("isbnInput");
+      isbnInput.value = cleaned || text;
+      lookupIsbn(cleaned || text);
+    }
+
+    async function lookupIsbnFromInput() {
+      const raw = document.getElementById("isbnInput").value.trim();
+      if (!raw) {
+        alert("Enter a code or scan one first.");
+        return;
+      }
+      const cleaned = raw.replace(/[^0-9Xx]/g, "");
+      await lookupIsbn(cleaned || raw);
+    }
+
+    async function lookupIsbn(code) {
+      const trimmed = (code || "").trim();
+      if (!trimmed) return;
+
+      const isbnBtn = document.getElementById("isbnLookupBtn");
+      const originalText = isbnBtn.textContent;
+      isbnBtn.textContent = "Looking up…";
+      isbnBtn.disabled = true;
+
+      try {
+        const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + encodeURIComponent(trimmed);
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Lookup failed: " + res.status);
+        }
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          alert("No book found for that ISBN/code.");
+          return;
+        }
+        const item = data.items[0];
+        const info = item.volumeInfo || {};
+        const img = info.imageLinks || {};
+        const pub = info.publishedDate || "";
+        const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+        const book = {
+          id: "b" + Date.now(),
+          title: info.title || trimmed,
+          author: (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown",
+          year: isNaN(year) ? null : year,
+          shelf: "want",
+          rating: 0,
+          description: info.description || "",
+          coverUrl: img.thumbnail || img.smallThumbnail || "",
+          pagesRead: 0,
+          totalPages: info.pageCount || null,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: info.averageRating || 0,
+          externalRatingsCount: info.ratingsCount || 0,
+          infoLink: info.infoLink || (item.selfLink || "")
+        };
+
+        state.books.unshift(book);
+        saveState();
+        setView("shelves");
+        openBookModal(book.id);
+      } catch (err) {
+        console.error(err);
+        alert("There was a problem looking up that code.");
+      } finally {
+        isbnBtn.textContent = originalText;
+        isbnBtn.disabled = false;
+      }
+    }
+
+    async function searchOnlineBooks() {
+      const query = document.getElementById("onlineSearchInput").value.trim();
+      const listEl = document.getElementById("onlineResultsList");
+      const emptyEl = document.getElementById("onlineResultsEmpty");
+
+      if (!query) {
+        alert("Enter a title or author to search.");
+        return;
+      }
+
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Searching online…";
+
+      try {
+        const url = "https://www.googleapis.com/books/v1/volumes?q=" + encodeURIComponent(query) + "&maxResults=10";
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Search failed: " + res.status);
+        }
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          emptyEl.textContent = "No online results for that search.";
+          return;
+        }
+
+        emptyEl.textContent = "";
+        listEl.innerHTML = "";
+
+        data.items.forEach((item) => {
+          const info = item.volumeInfo || {};
+          const img = info.imageLinks || {};
+          const pub = info.publishedDate || "";
+          const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+          const resultDiv = document.createElement("div");
+          resultDiv.className = "book-item";
+
+          const coverDiv = document.createElement("div");
+          coverDiv.className = "book-cover";
+          const imgEl = document.createElement("img");
+          imgEl.src = img.thumbnail || img.smallThumbnail || "https://dummyimage.com/200x300/f7ecde/8a745f.png&text=No+Cover";
+          imgEl.alt = info.title || "Book cover";
+          coverDiv.appendChild(imgEl);
+
+          const mainDiv = document.createElement("div");
+          mainDiv.className = "book-main";
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "book-title";
+          titleDiv.textContent = info.title || "Untitled";
+
+          const authorDiv = document.createElement("div");
+          authorDiv.className = "book-author";
+          authorDiv.textContent = (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown author";
+
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "book-meta";
+
+          const yearSpan = document.createElement("span");
+          yearSpan.textContent = year && !isNaN(year) ? year : "Year —";
+          metaDiv.appendChild(yearSpan);
+
+          if (info.averageRating) {
+            const ratingSpan = document.createElement("span");
+            ratingSpan.textContent = info.averageRating.toFixed(1) + "/5 (" + (info.ratingsCount || 0) + ")";
+            metaDiv.appendChild(ratingSpan);
+          }
+
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "book-actions";
+
+          const sourcePill = document.createElement("div");
+          sourcePill.className = "shelf-pill";
+          sourcePill.textContent = "Online result";
+
+          const addBtn = document.createElement("button");
+          addBtn.className = "btn btn-sm";
+          addBtn.textContent = "Add";
+          addBtn.addEventListener("click", () => {
+            const book = {
+              id: "b" + Date.now(),
+              title: info.title || query,
+              author: (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown",
+              year: year && !isNaN(year) ? year : null,
+              shelf: "want",
+              rating: 0,
+              description: info.description || "",
+              coverUrl: img.thumbnail || img.smallThumbnail || "",
+              pagesRead: 0,
+              totalPages: info.pageCount || null,
+              reviews: [],
+              addedAt: Date.now(),
+              finishedAt: null,
+              externalRating: info.averageRating || 0,
+              externalRatingsCount: info.ratingsCount || 0,
+              infoLink: info.infoLink || (item.selfLink || "")
+            };
+            state.books.unshift(book);
+            saveState();
+            setView("shelves");
+            openBookModal(book.id);
+          });
+
+          actionsDiv.appendChild(sourcePill);
+          actionsDiv.appendChild(addBtn);
+
+          mainDiv.appendChild(titleDiv);
+          mainDiv.appendChild(authorDiv);
+          mainDiv.appendChild(metaDiv);
+          mainDiv.appendChild(actionsDiv);
+
+          resultDiv.appendChild(coverDiv);
+          resultDiv.appendChild(mainDiv);
+
+          listEl.appendChild(resultDiv);
+        });
+      } catch (err) {
+        console.error(err);
+        emptyEl.textContent = "Error searching online. Try again.";
+      }
+    }
+
+    function shareCurrentBook() {
+      if (!currentBookId) return;
+      const book = state.books.find((b) => b.id === currentBookId);
+      if (!book) return;
+
+      let lines = [];
+      lines.push("Title: " + book.title);
+      if (book.author) lines.push("Author: " + book.author);
+      if (book.year) lines.push("Year: " + book.year);
+      if (book.totalPages) lines.push("Pages: " + book.totalPages);
+      if (book.rating) lines.push("My rating: " + book.rating + "/5");
+      if (book.externalRating) {
+        lines.push("Global rating: " + book.externalRating + "/5 (" + (book.externalRatingsCount || 0) + " reviews)");
+      }
+      if (book.infoLink) lines.push("More info: " + book.infoLink);
+
+      const text = lines.join("\n");
+      const title = "Book: " + book.title;
+
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: text
+        }).catch(() => {
+          // ignore user cancelling
+        });
+      } else {
+        const subject = encodeURIComponent(title);
+        const body = encodeURIComponent(text);
+        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+      }
+    }
+
+    function initEventListeners() {
+      document.getElementById("bottomNav").addEventListener("click", (e) => {
+        const btn = e.target.closest(".nav-btn");
+        if (!btn) return;
+        const view = btn.dataset.view;
+        if (!view) return;
+        setView(view);
+      });
+
+      document.getElementById("shelfTabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        document.querySelectorAll("#shelfTabs .tab").forEach((t) => {
+          t.classList.toggle("active", t === btn);
+        });
+        renderShelves();
+      });
+
+      document.getElementById("searchInput").addEventListener("input", () => {
+        renderDiscover();
+      });
+
+      document.getElementById("isbnLookupBtn").addEventListener("click", () => {
+        lookupIsbnFromInput();
+      });
+
+      document.getElementById("scanBtn").addEventListener("click", () => {
+        openScanner();
+      });
+
+      document.getElementById("scanCloseBtn").addEventListener("click", () => {
+        closeScanner();
+      });
+
+      document.getElementById("onlineSearchBtn").addEventListener("click", () => {
+        searchOnlineBooks();
+      });
+
+      document.getElementById("onlineSearchInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchOnlineBooks();
+        }
+      });
+
+      document
+        .getElementById("quickAddBtn")
+        .addEventListener("click", () => {
+          const title = document.getElementById("quickTitle").value.trim();
+          const author = document.getElementById("quickAuthor").value.trim();
+          if (!title) {
+            alert("Title is required.");
+            return;
+          }
+          const book = {
+            id: "b" + Date.now(),
+            title: title,
+            author: author || "Unknown",
+            year: null,
+            shelf: "want",
+            rating: 0,
+            description: "",
+            coverUrl: "",
+            pagesRead: 0,
+            totalPages: null,
+            reviews: [],
+            addedAt: Date.now(),
+            finishedAt: null,
+            externalRating: 0,
+            externalRatingsCount: 0,
+            infoLink: ""
+          };
+          state.books.unshift(book);
+          document.getElementById("quickTitle").value = "";
+          document.getElementById("quickAuthor").value = "";
+          saveState();
+          setView("shelves");
+        });
+
+      document.getElementById("addBookBtn").addEventListener("click", () => {
+        const title = document.getElementById("addTitle").value.trim();
+        const author = document.getElementById("addAuthor").value.trim();
+        const year = document.getElementById("addYear").value.trim();
+        const pages = document.getElementById("addPages").value.trim();
+        const cover = document.getElementById("addCover").value.trim();
+        const description = document
+          .getElementById("addDescription")
+          .value.trim();
+
+        if (!title || !author) {
+          alert("Title and author are required.");
+          return;
+        }
+
+        const yearNum = year ? Number(year) : null;
+
+        const book = {
+          id: "b" + Date.now(),
+          title: title,
+          author: author,
+          year: yearNum && !isNaN(yearNum) ? yearNum : null,
+          shelf: "want",
+          rating: 0,
+          description: description,
+          coverUrl: cover,
+          pagesRead: 0,
+          totalPages: pages ? Number(pages) : null,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        };
+        state.books.unshift(book);
+
+        document.getElementById("addTitle").value = "";
+        document.getElementById("addAuthor").value = "";
+        document.getElementById("addYear").value = "";
+        document.getElementById("addPages").value = "";
+        document.getElementById("addCover").value = "";
+        document.getElementById("addDescription").value = "";
+
+        saveState();
+        renderDiscover();
+        setView("shelves");
+      });
+
+      document
+        .getElementById("profileSaveBtn")
+        .addEventListener("click", () => {
+          const name = document.getElementById("profileName").value.trim();
+          const goalRaw = document.getElementById("profileGoal").value;
+          const goal = goalRaw ? Number(goalRaw) : 0;
+          state.user.name = name || "You";
+          state.user.yearlyGoal = goal;
+          saveState();
+          alert("Profile saved.");
+        });
+
+      document.getElementById("wipeDataBtn").addEventListener("click", () => {
+        if (
+          confirm(
+            "This will remove all books and settings stored in this browser. Continue?"
+          )
+        ) {
+          localStorage.removeItem(STORAGE_KEY);
+          state = {
+            books: [],
+            user: { name: "You", yearlyGoal: 20, booksReadThisYear: 0 },
+          };
+          seedSampleData();
+        }
+      });
+
+      document.getElementById("modalCloseBtn").addEventListener("click", () => {
+        closeBookModal();
+      });
+
+      document
+        .getElementById("modalBackdrop")
+        .addEventListener("click", (e) => {
+          if (e.target.id === "modalBackdrop") {
+            closeBookModal();
+          }
+        });
+
+      document
+        .getElementById("modalStars")
+        .addEventListener("click", (e) => {
+          const span = e.target.closest("span");
+          if (!span || !currentBookId) return;
+          const rating = Number(span.getAttribute("data-rating"));
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          book.rating = rating;
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalSaveProgressBtn")
+        .addEventListener("click", () => {
+          if (!currentBookId) return;
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          const pagesReadRaw =
+            document.getElementById("modalPagesRead").value.trim();
+          const totalPagesRaw =
+            document.getElementById("modalTotalPages").value.trim();
+
+          if (totalPagesRaw) book.totalPages = Number(totalPagesRaw);
+          if (pagesReadRaw) book.pagesRead = Number(pagesReadRaw);
+          else book.pagesRead = 0;
+
+          if (
+            book.totalPages &&
+            book.pagesRead >= book.totalPages &&
+            book.shelf !== "read"
+          ) {
+            book.shelf = "read";
+            if (!book.finishedAt) {
+              book.finishedAt = new Date().getFullYear();
+              state.user.booksReadThisYear =
+                (state.user.booksReadThisYear || 0) + 1;
+            }
+          }
+
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalAddReviewBtn")
+        .addEventListener("click", () => {
+          if (!currentBookId) return;
+          const text = document
+            .getElementById("modalReviewText")
+            .value.trim();
+          if (!text) return;
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          if (!book.reviews) book.reviews = [];
+          book.reviews.push({ text: text, createdAt: Date.now() });
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalShareBtn")
+        .addEventListener("click", () => {
+          shareCurrentBook();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      initEventListeners();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
