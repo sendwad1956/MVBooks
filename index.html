@@ -1,0 +1,3674 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>My Book Tracker</title>
+  <meta name="viewport" content="width=390, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <style>
+    :root {
+      /* Soft Sky x Soft Steel blues */
+      --bg: #e6f0f9;
+      --bg-soft: #f4f7fb;
+      --card: #f8fafc;
+      --accent: #5b8fd8;
+      --accent-soft: rgba(91, 143, 216, 0.18);
+      --accent-strong: #295a9b;
+      --text: #1f2933;
+      --text-muted: #718096;
+      --border: #d2d9e6;
+      --danger: #c86454;
+
+      --shadow-soft: 9px 9px 22px rgba(177, 184, 199, 0.6),
+                     -7px -7px 16px rgba(255, 255, 255, 0.98);
+      --shadow-soft-inset: inset 2px 2px 5px rgba(192, 199, 213, 0.9),
+                           inset -2px -2px 5px rgba(255, 255, 255, 0.98);
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      /* Outer desk/background */
+      background:
+        radial-gradient(circle at top, #d7e0f0 0, #c2ccdd 40%, #9aa5bb 100%);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px 8px 90px;
+      overflow-x: hidden;
+    }
+
+    .app-shell {
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+      min-height: calc(100vh - 110px);
+      display: flex;
+      position: relative;
+      flex-direction: column;
+      padding: 8px 8px 70px;
+      border-radius: 26px 26px 0 0;
+      border: 1px solid rgba(152, 164, 190, 0.9);
+      /* Paper + subtle texture */
+      background:
+        radial-gradient(circle at top, #f9fbff 0, #edf2fb 55%, #e4e9f7 100%),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.6) 0px,
+          rgba(255, 255, 255, 0.6) 1px,
+          rgba(223, 232, 247, 0.45) 1px,
+          rgba(223, 232, 247, 0.45) 3px
+        ),
+        repeating-linear-gradient(
+          120deg,
+          rgba(255, 255, 255, 0.18) 0px,
+          rgba(255, 255, 255, 0.18) 2px,
+          rgba(240, 244, 255, 0.05) 2px,
+          rgba(240, 244, 255, 0.05) 4px
+        );
+      box-shadow:
+        0 18px 40px rgba(36, 49, 77, 0.65),
+        0 0 0 1px rgba(255, 255, 255, 0.65);
+      overflow: hidden;
+    }
+    .app-shell::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 28px;
+      height: 28px;
+      background:
+        linear-gradient(135deg,
+          rgba(231, 236, 247, 0) 0%,
+          rgba(231, 236, 247, 0) 48%,
+          rgba(197, 208, 230, 0.9) 52%,
+          rgba(181, 194, 219, 0.95) 100%);
+      box-shadow:
+        -4px -4px 8px rgba(255, 255, 255, 0.95),
+        4px 4px 10px rgba(134, 146, 172, 0.55);
+      border-top-left-radius: 6px;
+      transform-origin: bottom right;
+      pointer-events: none;
+    }
+
+
+    header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 10px 10px 6px;
+  gap: 6px;
+}
+
+
+
+    .brand {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+
+
+
+    
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 20%, #ffffff 0, #e3ebfa 40%, #c3d0ea 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow:
+        4px 4px 10px rgba(159, 172, 195, 0.75),
+        -2px -2px 6px rgba(255, 255, 255, 0.98);
+      overflow: hidden;
+    }
+
+    .brand-icon svg {
+      width: 78%;
+      height: 78%;
+      display: block;
+    }
+.brand-icon span {
+      font-weight: 800;
+      font-size: 14px;
+      color: #123055;
+    }
+
+    .brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  padding: 2px 4px;
+}
+
+
+
+
+    .brand-text strong {
+      font-size: 18px;
+      letter-spacing: 0.03em;
+    }
+
+    .brand-text small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .pill-stats {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  background: rgba(244, 248, 255, 0.92);
+  backdrop-filter: blur(10px);
+  box-shadow: 4px 4px 10px rgba(165, 177, 198, 0.7),
+              -3px -3px 8px rgba(255, 255, 255, 0.98);
+  align-self: center;
+}
+
+
+    main {
+      flex: 1;
+      padding: 4px 4px 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Page-like view transitions */
+    .view {
+      display: none;
+      transform-origin: center top;
+      will-change: transform, opacity;
+    }
+
+    .view.active {
+      display: block;
+      animation: pageTurnIn 0.35s ease-out;
+    }
+
+    @keyframes pageTurnIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px) rotateX(5deg);
+        filter: drop-shadow(0 14px 24px rgba(108, 122, 152, 0.65));
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) rotateX(0deg);
+        filter: drop-shadow(0 0 0 rgba(0, 0, 0, 0));
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 4px 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-title span {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .card {
+      /* Paper card with texture */
+      background:
+        linear-gradient(180deg, rgba(248, 250, 252, 0.97), rgba(237, 242, 251, 0.98)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.8) 0px,
+          rgba(255, 255, 255, 0.8) 1px,
+          rgba(223, 232, 247, 0.35) 1px,
+          rgba(223, 232, 247, 0.35) 3px
+        );
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--border);
+      padding: 12px 12px 10px;
+      box-shadow: var(--shadow-soft);
+      margin: 0 4px 12px;
+    }
+
+    .card-header {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 10px 10px 6px;
+  gap: 6px;
+}
+
+
+
+    .card-header h2 {
+      font-size: 15px;
+      margin: 0;
+    }
+
+    .card-header small {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    .progress-bar {
+      flex: 1;
+      height: 6px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #dde5f3;
+      box-shadow: inset 2px 2px 4px rgba(185, 194, 210, 0.9),
+                  inset -1px -1px 3px rgba(255, 255, 255, 0.98);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #9ac6ff);
+      transition: width 0.2s ease-out;
+    }
+
+    .progress-text {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .book-item {
+      display: flex;
+      gap: 10px;
+      padding: 8px;
+      border-radius: var(--radius-lg);
+      background:
+        linear-gradient(180deg, #edf2fb, #e7eefb),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.7) 0px,
+          rgba(255, 255, 255, 0.7) 1px,
+          rgba(223, 232, 247, 0.4) 1px,
+          rgba(223, 232, 247, 0.4) 3px
+        );
+      border: 1px solid var(--border);
+      box-shadow: 6px 6px 14px rgba(170, 183, 205, 0.7),
+                  -4px -4px 10px rgba(255, 255, 255, 0.98);
+    }
+
+    .book-cover {
+      width: 50px;
+      height: 75px;
+      border-radius: 12px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      box-shadow: 3px 3px 7px rgba(170, 183, 205, 0.7),
+                  -2px -2px 4px rgba(255, 255, 255, 0.98);
+      background: #dbe4f5;
+    }
+
+    .book-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .book-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .book-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .book-author {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 3px;
+    }
+
+    .book-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .stars {
+      display: inline-flex;
+      gap: 1px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .stars span {
+      opacity: 0.3;
+      text-shadow: 1px 1px 2px rgba(210, 220, 235, 0.9);
+    }
+
+    .stars span.filled {
+      opacity: 1;
+      color: #f2c94c;
+      text-shadow: 0 0 12px rgba(242, 201, 76, 0.85);
+    }
+
+    .book-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      gap: 8px;
+    }
+
+    .shelf-pill {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      white-space: nowrap;
+      background: #e9f0ff;
+      box-shadow: 2px 2px 6px rgba(177, 188, 207, 0.7),
+                  -2px -2px 6px rgba(255, 255, 255, 0.98);
+    }
+
+    .btn {
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 12px;
+      background: #e2ecff;
+      color: #123055;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-width: 72px;
+      box-shadow: 5px 5px 12px rgba(170, 183, 205, 0.7),
+                  -4px -4px 9px rgba(255, 255, 255, 0.98);
+      border: 1px solid var(--border);
+      transition: transform 0.07s ease-out,
+                  box-shadow 0.07s ease-out,
+                  background 0.15s ease-out;
+    }
+
+    .btn:hover {
+      background: #e7f0ff;
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: var(--shadow-soft-inset);
+    }
+
+    .btn-ghost {
+      background: #eef2fa;
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      box-shadow: 3px 3px 8px rgba(172, 184, 205, 0.7),
+                  -2px -2px 6px rgba(255, 255, 255, 0.98);
+      min-width: 0;
+      padding-inline: 10px;
+    }
+
+    .btn-sm {
+      padding: 5px 11px;
+      font-size: 11px;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-danger {
+      background: #f7e2de;
+      color: #5b3128;
+      border-color: rgba(209, 151, 137, 0.97);
+      box-shadow: 5px 5px 12px rgba(186, 170, 156, 0.75),
+                  -4px -4px 9px rgba(255, 255, 255, 0.98);
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .pill-option {
+      font-size: 11px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #edf2fb;
+      color: var(--text-muted);
+      cursor: pointer;
+      box-shadow: 3px 3px 8px rgba(170, 183, 205, 0.7),
+                  -2px -2px 6px rgba(255, 255, 255, 0.98);
+    }
+
+    .pill-option.active {
+      background: var(--accent-soft);
+      border-color: rgba(91, 143, 216, 0.85);
+      color: var(--accent-strong);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .input-row input {
+      flex: 1;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-soft);
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+      box-shadow: inset 3px 3px 6px rgba(192, 199, 213, 0.85),
+                  inset -3px -3px 6px rgba(255, 255, 255, 0.98);
+    }
+
+    textarea {
+      border-radius: 14px;
+      resize: vertical;
+      min-height: 60px;
+      font-size: 12px;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(136, 150, 171, 0.95);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin: 4px 4px 10px;
+      padding: 2px;
+      border-radius: 999px;
+      background: #e6edf9;
+      border: 1px solid var(--border);
+      box-shadow: 4px 4px 10px rgba(170, 182, 204, 0.7),
+                  -3px -3px 8px rgba(255, 255, 255, 0.98);
+    }
+
+    .tab {
+      flex: 1;
+      border-radius: 999px;
+      font-size: 12px;
+      padding: 6px 0;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: radial-gradient(circle at top, rgba(91, 143, 216, 0.22) 0, #f6f8ff 70%);
+      color: var(--accent-strong);
+      font-weight: 600;
+      box-shadow: 2px 2px 6px rgba(175, 187, 208, 0.7),
+                  -2px -2px 5px rgba(255, 255, 255, 0.98);
+    }
+
+    .empty {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 6px 2px 2px;
+    }
+
+    footer.navbar {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      max-width: 480px;
+      width: calc(100% - 32px);
+      border-top: 1px solid var(--border);
+      border-left: 1px solid rgba(152, 164, 190, 0.9);
+      border-right: 1px solid rgba(152, 164, 190, 0.9);
+      border-radius: 0 0 26px 26px;
+      background: rgba(245, 248, 254, 0.97);
+      backdrop-filter: blur(16px);
+      z-index: 40;
+      box-shadow: 0 16px 36px rgba(25, 33, 52, 0.7);
+    }
+
+    .nav-inner {
+      max-width: 480px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 18px 10px;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 9px;
+      padding: 4px 0;
+      cursor: pointer;
+      transition: color 0.15s ease-out, transform 0.07s ease-out;
+    }
+
+    .nav-btn span.icon {
+      font-size: 17px;
+      text-shadow: 2px 2px 4px rgba(250, 252, 255, 0.96);
+    }
+
+    .nav-btn.active {
+      color: var(--accent-strong);
+      transform: translateY(-1px);
+    }
+
+    .nav-btn.active span.icon {
+      text-shadow: 0 0 12px rgba(91, 143, 216, 0.9);
+    }
+
+    /* Modal / sheet animations */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(72, 84, 104, 0.35);
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .modal-backdrop.show {
+      display: flex;
+      animation: backdropFade 0.2s ease-out;
+    }
+
+    @keyframes backdropFade {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 480px;
+      /* Note pad style sheet */
+      background:
+        linear-gradient(180deg, #f9fbff 0, #e7ecf7 50%, #dde4f3 100%),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.9) 0px,
+          rgba(255, 255, 255, 0.9) 1px,
+          rgba(215, 226, 245, 0.5) 1px,
+          rgba(215, 226, 245, 0.5) 3px
+        );
+      border-radius: 22px 22px 0 0;
+      border: 1px solid var(--border);
+      box-shadow: 0 -16px 40px rgba(145, 158, 185, 0.9);
+      padding: 10px 14px 18px;
+      max-height: 88vh;
+      overflow-y: auto;
+      animation: sheetUp 0.28s ease-out;
+      transform-origin: center bottom;
+    }
+
+    @keyframes sheetUp {
+      from {
+        transform: translateY(24px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    .modal-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 10px 6px;
+  gap: 6px;
+}
+
+
+
+
+    .modal-title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .modal-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .modal-close {
+      border-radius: 999px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid var(--border);
+      background: #eaf0fb;
+      color: var(--text-muted);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 4px 4px 9px rgba(170, 182, 204, 0.9),
+                  -3px -3px 7px rgba(255, 255, 255, 0.98);
+      transition: transform 0.07s ease-out, box-shadow 0.07s ease-out;
+    }
+
+    .modal-close:active {
+      transform: translateY(1px);
+      box-shadow: var(--shadow-soft-inset);
+    }
+
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .modal-top {
+      display: flex;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .modal-cover {
+      width: 72px;
+      height: 108px;
+      border-radius: 14px;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: #dbe4f5;
+      box-shadow: 4px 4px 10px rgba(170, 182, 204, 0.9),
+                  -3px -3px 8px rgba(255, 255, 255, 0.98);
+    }
+
+    .modal-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .modal-top-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .modal-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .reviews-list {
+      margin-top: 4px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .review-item {
+      font-size: 11px;
+      background: #edf2fb;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      box-shadow: 3px 3px 8px rgba(172, 184, 205, 0.7),
+                  -2px -2px 6px rgba(255, 255, 255, 0.98);
+    }
+
+    .review-item time {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .modal-description {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .badge-year {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #e7eefb;
+      color: var(--text-muted);
+      box-shadow: 3px 3px 8px rgba(170, 183, 205, 0.7),
+                  -2px -2px 6px rgba(255, 255, 255, 0.98);
+    }
+
+    .profile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .stat-card {
+      background: #edf2fb;
+      border-radius: 16px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      text-align: center;
+      box-shadow: 4px 4px 10px rgba(172, 184, 205, 0.7),
+                  -3px -3px 8px rgba(255, 255, 255, 0.98);
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .stat-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    @media (min-width: 480px) {
+      .app-shell {
+        padding-bottom: 80px;
+      }
+    }
+  
+    .app-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.35;
+      mix-blend-mode: soft-light;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.45) 0px,
+          rgba(255, 255, 255, 0.45) 1px,
+          rgba(210, 220, 238, 0.7) 1px,
+          rgba(210, 220, 238, 0.7) 3px
+        ),
+        repeating-linear-gradient(
+          135deg,
+          rgba(190, 202, 224, 0.3) 0px,
+          rgba(190, 202, 224, 0.3) 2px,
+          rgba(240, 245, 255, 0.06) 2px,
+          rgba(240, 245, 255, 0.06) 4px
+        );
+    }
+    
+  
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.34;
+      background-image:
+        repeating-linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.8) 0px,
+          rgba(255, 255, 255, 0.8) 1px,
+          rgba(215, 224, 240, 0.8) 1px,
+          rgba(215, 224, 240, 0.8) 3px
+        );
+      mix-blend-mode: soft-light;
+    }
+    
+  
+    .brand-icon img {
+      width: 80%;
+      height: auto;
+      display: block;
+    }
+    
+  
+    
+
+
+    
+
+
+
+
+    
+
+
+
+
+    .card-body {
+      margin-top: 6px;
+    }
+
+    .card.collapsible[data-collapsed="true"] .card-body {
+      display: none;
+    }
+
+  
+    .section-help-btn {
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      width: 22px;
+      height: 22px;
+      margin-left: 6px;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #e4ecfb;
+      color: var(--text-muted);
+      cursor: pointer;
+      box-shadow:
+        2px 2px 5px rgba(172, 184, 205, 0.7),
+        -1px -1px 3px rgba(255, 255, 255, 0.98);
+      border: 1px solid var(--border);
+    }
+
+    .section-help-btn:active {
+      box-shadow: var(--shadow-soft-inset);
+      transform: translateY(1px);
+    }
+
+  
+    .global-help-btn {
+      position: absolute;
+      top: 10px;
+      right: 14px;
+      border: none;
+      outline: none;
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      font-size: 15px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: #f3e6c8;
+      color: #6b5b35;
+      cursor: pointer;
+      box-shadow:
+        3px 3px 7px rgba(172, 184, 205, 0.7),
+        -2px -2px 4px rgba(255, 255, 255, 0.98);
+      border: 1px solid rgba(209, 185, 128, 0.9);
+      z-index: 5;
+    }
+
+    .global-help-btn:active {
+      box-shadow: var(--shadow-soft-inset);
+      transform: translateY(1px);
+    }
+
+    /* Hide old per-section help buttons (not used anymore) */
+    .section-help-btn {
+      display: none !important;
+    }
+
+  
+    .btn-clear-inline {
+      border: none;
+      background: transparent;
+      padding: 4px 0 0;
+      font-size: 11px;
+      font-weight: 500;
+      color: #4b5563;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      align-self: flex-start;
+    }
+
+    .btn-clear-inline:active {
+      opacity: 0.7;
+    }
+
+  
+    .collapse-toggle {
+  margin-left: 10px;
+  border-radius: 999px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  cursor: pointer;
+  background: #e4ecfb;
+  color: #2563eb;
+  box-shadow:
+    3px 3px 7px rgba(151, 163, 185, 0.8),
+    -2px -2px 5px rgba(255, 255, 255, 0.98);
+  transition: box-shadow 0.16s ease, transform 0.12s ease, background 0.16s ease;
+}
+
+
+.card.collapsible[data-collapsed="false"] .collapse-toggle {
+  background: #d3ddf5;
+  box-shadow: var(--shadow-soft-inset);
+  transform: translateY(1px);
+}
+
+
+
+
+    .card.collapsible[data-collapsed="false"] .collapse-toggle {
+  background: #d3ddf5;
+  box-shadow: var(--shadow-soft-inset);
+  transform: translateY(1px);
+}
+
+
+
+  
+    
+
+    
+
+  
+    .card.collapsible .card-header {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .card.collapsible .card-header .section-title {
+      flex: none;
+      display: flex;
+      align-items: baseline;
+      justify-content: flex-start;
+      gap: 4px;
+    }
+
+  
+    .chart-card-body {
+      margin-top: 8px;
+    }
+
+    .chart-frame {
+      border-radius: var(--radius-lg);
+      padding: 8px;
+      background:
+        radial-gradient(circle at top left, #ffffff 0, #edf2fb 40%, #dde7fb 100%);
+      box-shadow:
+        8px 8px 18px rgba(172, 181, 197, 0.7),
+        -6px -6px 14px rgba(255, 255, 255, 0.98);
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 120px;
+      display: block;
+      border-radius: 12px;
+    }
+</style>
+</head>
+<body>
+  <div class="app-shell">
+      <button class="global-help-btn" id="globalHelpBtn">?</button>
+
+    <header>
+      <div class="brand">
+        <div class="brand-icon">
+          <svg viewBox="0 0 100 100" aria-label="MV logo" role="img">
+            <!-- Outer M shaped like an open book -->
+            <path
+              d="M18 72 L30 30 L50 52 L70 30 L82 72"
+              fill="none"
+              stroke="#0f2847"
+              stroke-width="9"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <!-- Inner V nested inside -->
+            <path
+              d="M38 34 L50 72 L62 34"
+              fill="none"
+              stroke="#3b82f6"
+              stroke-width="8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+        <div class="brand-text">
+          <strong>MyVolumes</strong>
+          <small id="brandSubtitle">Track what you read</small>
+        </div>
+      </div>
+      <div class="pill-stats" id="headerStats">
+        0 books • 0 this year
+      </div>
+    </header>
+
+    <main>
+      <!-- HOME VIEW -->
+      <section id="view-home" class="view active">
+        <div class="section-title">
+          Today
+          <button class="section-help-btn" data-help="home">?</button>
+          <span id="homeSummary">Reading 0 • Goal 0</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Currently Reading</h2>
+            <small id="homeReadingCount">0 books</small>
+          </div>
+          <div id="homeReadingList" class="list"></div>
+          <div class="empty" id="homeReadingEmpty">
+            You don't have anything in <b>Reading</b> yet. Add a book and move it to this shelf.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Quick Add</h2>
+            <small>Just title & author</small>
+          </div>
+          <div class="input-row">
+            <input id="quickTitle" type="text" placeholder="Book title" />
+            <input id="quickAuthor" type="text" placeholder="Author" />
+          </div>
+          <button class="btn btn-full btn-sm" id="quickAddBtn">
+            + Add to “Want to Read”
+          </button>
+          <div class="hint">
+            For covers, descriptions and pages, use the <b>Discover</b> tab.
+          </div>
+        </div>
+      </section>
+
+      <!-- SHELVES VIEW -->
+      <section id="view-shelves" class="view">
+        <div class="section-title">
+          My Shelves
+          <button class="section-help-btn" data-help="shelves">?</button>
+          <span id="shelvesSummary"></span>
+        </div>
+
+        <div class="tabs" id="shelfTabs">
+          <button class="tab active" data-shelf="all">All</button>
+          <button class="tab" data-shelf="want">Want</button>
+          <button class="tab" data-shelf="reading">Reading</button>
+          <button class="tab" data-shelf="read">Read</button>
+        </div>
+
+        <div class="card">
+          <div id="shelvesList" class="list"></div>
+          <div class="empty" id="shelvesEmpty">
+            No books match this shelf yet.
+          </div>
+        </div>
+      </section>
+
+      <!-- DISCOVER VIEW -->
+      <section id="view-discover" class="view">
+        <div class="section-title">
+          Discover & Add
+          <button class="section-help-btn" data-help="discover">?</button>
+          <span>Online lookup + local</span>
+        </div>
+
+
+        <div class="card" id="suggestionsCard">
+          <div class="card-header">
+            <h2>Suggestions for you</h2>
+            <small>Based on your profile & shelves</small>
+          </div>
+          <div class="hint">
+            Uses your favorite genres, authors, formats, and highly rated <b>Read</b> books to suggest titles from online sources.
+          </div>
+          <button class="btn btn-sm" id="suggestionsRefreshBtn" style="margin-top:6px;">
+            Refresh suggestions
+          </button>
+          <div id="suggestionsList" class="list" style="margin-top:8px;"></div>
+          <div class="empty" id="suggestionsEmpty">
+            No suggestions yet. Tap <b>Refresh</b> to generate some.
+          </div>
+        </div>
+
+
+        <!-- ISBN / Scan card -->
+        <div class="card">
+          <div class="card-header">
+            <h2>ISBN / Code</h2>
+            <small>Scan or type</small>
+          </div>
+          <div class="input-row">
+            <input id="isbnInput" type="text" inputmode="numeric" pattern="[0-9Xx\- ]*" placeholder="ISBN-10 / ISBN-13 or code" />
+            <button class="btn btn-sm" id="isbnLookupBtn">Lookup</button>
+            <button class="btn-clear-inline" id="isbnClearBtn">Clear</button>
+          </div>
+          <button class="btn btn-full btn-sm" id="scanBtn" style="margin-top:6px;">
+            📷 Scan QR / Barcode
+          </button>
+          <div class="hint">
+            Scans usually work with the barcode on the back of the book (ISBN-13). If scanning fails, just type the digits.
+          </div>
+        </div>
+
+        <!-- Online title/author search -->
+        <div class="card">
+          <div class="card-header">
+            <h2>Online Book Search</h2>
+            <small>Title or author (online)</small>
+          </div>
+          <div class="input-row">
+            <input id="onlineSearchInput" type="search" placeholder="Search books online…" />
+            <button class="btn btn-sm" id="onlineSearchBtn">Search</button>
+          </div>
+          <div class="hint">
+            Uses free public book data (Google Books). Tap a result for online details, then add it to your shelves.
+          </div>
+          <button class="btn-clear-inline" id="onlineClearBtn">Clear search</button>
+          <div id="onlineResultsList" class="list" style="margin-top:10px;"></div>
+          <div class="empty" id="onlineResultsEmpty">
+            No online results yet. Try searching for a title or author.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Search your library</h2>
+            <small>Title or author</small>
+          </div>
+          <input id="searchInput" type="search" placeholder="Search…" />
+          <div class="hint">
+            This searches only the books you've added on this device.
+          </div>
+
+          <button class="btn-clear-inline" id="localClearBtn">Clear search</button>
+          <div id="discoverList" class="list" style="margin-top:10px;"></div>
+          <div class="empty" id="discoverEmpty">
+            Nothing matches your local library search yet.
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Add a book (manual)</h2>
+            <small>When lookup isn't enough</small>
+          </div>
+          <input id="addTitle" type="text" placeholder="Title *" />
+          <input id="addAuthor" type="text" placeholder="Author *" />
+          <input id="addYear" type="number" min="0" max="9999" placeholder="Year (optional)" />
+          <input id="addPages" type="number" min="1" placeholder="Total pages (optional)" />
+          <input id="addCover" type="url" placeholder="Cover image URL (optional)" />
+          <textarea id="addDescription" placeholder="Short description or notes (optional)"></textarea>
+          <div class="hint">
+            New books start on the <b>Want to Read</b> shelf by default.
+          </div>
+          <button class="btn btn-full btn-sm" id="addBookBtn">
+            + Add book
+          </button>
+        </div>
+      </section>
+
+      <!-- PROFILE VIEW -->
+      <section id="view-profile" class="view">
+        <div class="section-title">
+          Profile
+          <button class="section-help-btn" data-help="profile">?</button>
+          <span>Local to this device</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Reader</h2>
+            <small>Basic stats</small>
+          </div>
+          <div class="profile-row">
+            <div style="flex:1;">
+              <label class="hint" style="margin-top:0;">Display name</label>
+              <input id="profileName" type="text" />
+            </div>
+            <button class="btn btn-sm btn-ghost" id="profileSaveBtn">
+              Save
+            </button>
+          </div>
+
+          <div class="profile-row">
+            <div style="flex:1;">
+              <label class="hint" style="margin-top:0;">Yearly reading goal (books)</label>
+              <input id="profileGoal" type="number" min="0" />
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="modal-section-title">Favorite genres</div>
+            <div class="pill-row" id="profileGenres"></div>
+            <div class="hint">
+              Tap to toggle. These are used to shape your suggestions.
+            </div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="modal-section-title">Favorite authors</div>
+            <input id="profileFavoriteAuthors" type="text" placeholder="Comma-separated, e.g. Tolkien, Le Guin" />
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="modal-section-title">Preferred formats</div>
+            <div class="pill-row" id="profileFormats"></div>
+          </div>
+
+          <div style="margin-top:10px;">
+            <div class="modal-section-title">Reading pace</div>
+            <div class="pill-row" id="profilePace"></div>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Books</div>
+              <div class="stat-value" id="statTotalBooks">0</div>
+              <div class="stat-sub">In your library</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Read</div>
+              <div class="stat-value" id="statRead">0</div>
+              <div class="stat-sub">Marked as read</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">This Year</div>
+              <div class="stat-value" id="statYearCount">0</div>
+              <div class="stat-sub" id="statYearGoal">Goal: 0</div>
+            </div>
+          </div>
+
+          <div class="hint" style="margin-top:10px;">
+            This app uses <b>localStorage</b>. Clearing browser data will reset everything.
+          </div>
+
+          <button class="btn btn-full btn-sm btn-danger" id="wipeDataBtn" style="margin-top:10px;">
+            Wipe all local data
+          </button>
+        </div>
+      </section>
+    
+      <!-- STATS VIEW -->
+      <section id="view-stats" class="view">
+        <div class="section-title">
+          Stats
+          <button class="section-help-btn" data-help="stats">?</button>
+          <span>Visualize your reading</span>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Reading goal</h2>
+            <small>This year</small>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-frame">
+              <canvas id="chartGoal" class="chart-canvas" width="320" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Shelves breakdown</h2>
+            <small>Want / Reading / Read</small>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-frame">
+              <canvas id="chartShelves" class="chart-canvas" width="320" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Ratings</h2>
+            <small>How you rate books</small>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-frame">
+              <canvas id="chartRatings" class="chart-canvas" width="320" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>Timeline</h2>
+            <small>Books finished per year</small>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-frame">
+              <canvas id="chartYears" class="chart-canvas" width="320" height="120"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+</main>
+  </div>
+
+  <!-- BOOK DETAILS MODAL -->
+  <div id="modalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+  <div class="modal-title-wrap">
+    <div class="modal-title" id="modalTitle">Book title</div>
+    <div class="modal-sub" id="modalAuthor">Author</div>
+  </div>
+  <button class="modal-close" id="modalCloseBtn">&times;</button>
+</div>
+
+      <div class="modal-body">
+        <div class="modal-top">
+          <div class="modal-cover">
+            <img id="modalCover" src="" alt="Cover" />
+          </div>
+          <div class="modal-top-info">
+            <div>
+              <div class="modal-section-title">Shelf</div>
+              <div id="modalShelfOptions" class="pill-row"></div>
+            </div>
+
+            <div>
+              <div class="modal-section-title" style="margin-top:6px;">Rating</div>
+              <div class="stars" id="modalStars">
+                <span data-rating="1">★</span>
+                <span data-rating="2">★</span>
+                <span data-rating="3">★</span>
+                <span data-rating="4">★</span>
+                <span data-rating="5">★</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="modal-section-title" style="margin-top:6px;">Progress</div>
+              <div class="input-row">
+                <input id="modalPagesRead" type="number" min="0" placeholder="Pages read" />
+                <input id="modalTotalPages" type="number" min="1" placeholder="Total" />
+              </div>
+              <div class="hint" id="modalProgressHint"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-row" style="margin-top:10px;">
+          <div class="progress-bar">
+            <div class="progress-fill" id="modalProgressFill"></div>
+          </div>
+          <div class="progress-text" id="modalProgressText">0%</div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+          <div class="badge-year" id="modalYearBadge">Year: —</div>
+          <button class="btn btn-sm btn-ghost" id="modalSaveProgressBtn">
+            Save progress
+          </button>
+        </div>
+
+        <div>
+          <div class="modal-section-title" style="margin-top:10px;">Notes / Description</div>
+          <div class="modal-description" id="modalDescription">
+            No description yet for this title.
+          </div>
+        </div>
+
+        <div>
+          <div class="modal-section-title" style="margin-top:10px;">Reviews</div>
+          <div class="reviews-list" id="modalReviewsList"></div>
+          <div class="empty" id="modalReviewsEmpty">
+            No reviews yet. Add your thoughts.
+          </div>
+          <textarea id="modalReviewText" placeholder="What did you think?"></textarea>
+          <button class="btn btn-full btn-sm" id="modalAddReviewBtn" style="margin-top:4px;">
+            Add review
+          </button>
+        </div>
+
+        <button class="btn btn-full btn-sm" id="modalShareBtn" style="margin-top:8px;">
+          Share book details
+        </button>
+
+        <button class="btn btn-full btn-sm" id="modalOnlineDetailsBtn" style="margin-top:6px;">
+          Fetch online details
+        </button>
+
+        <button class="btn btn-full btn-sm btn-danger" id="modalDeleteBtn" style="margin-top:6px;">
+          Remove this book from my library
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCANNER MODAL -->
+  <div id="scanBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title">Scan code</div>
+          <div class="modal-sub">Point your camera at a barcode or QR code</div>
+        </div>
+        <button class="modal-close" id="scanCloseBtn">&times;</button>
+      </div>
+      <div id="scanReader" style="width:100%;"></div>
+      <div class="hint" style="margin-top:8px;">
+        Works best with the ISBN barcode on the back of the book. If it has trouble, move closer or try manual entry.
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- ONLINE BOOK DETAILS MODAL -->
+  <div id="onlineModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title" id="onlineModalTitle">Book title</div>
+          <div class="modal-sub" id="onlineModalAuthor">Author</div>
+        </div>
+        <button class="modal-close" id="onlineModalCloseBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="modal-top">
+          <div class="modal-cover">
+            <img id="onlineModalCover" src="" alt="Cover" />
+          </div>
+          <div class="modal-top-info">
+            <div>
+              <div class="modal-section-title">At a glance</div>
+              <div class="hint" id="onlineModalMeta"></div>
+            </div>
+
+            <div style="margin-top:6px;">
+              <div class="modal-section-title">Global rating</div>
+              <div class="hint" id="onlineModalRating">No rating data.</div>
+            </div>
+
+            <div style="margin-top:6px;">
+              <div class="modal-section-title">Categories</div>
+              <div class="hint" id="onlineModalCategories">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top:10px;">
+          <div class="modal-section-title">Description</div>
+          <div class="modal-description" id="onlineModalDescription">
+            No description available from the online source.
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <div class="modal-section-title">More info</div>
+          <div class="hint" id="onlineModalInfoLink">—</div>
+        </div>
+
+        <button class="btn btn-full btn-sm" id="onlineModalAddBtn" style="margin-top:10px;">
+          + Add to my library
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- CONTEXT HELP MODAL -->
+  <div id="helpModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <div class="modal-title" id="helpModalTitle">Help</div>
+          <div class="modal-sub" id="helpModalSub">How this section works</div>
+        </div>
+        <button class="modal-close" id="helpModalCloseBtn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="modal-description" id="helpModalBody">
+          This section explains how to use MyVolumes.
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- NAVBAR -->
+  <footer class="navbar">
+    <div class="nav-inner" id="bottomNav">
+      <button class="nav-btn active" data-view="home">
+        <span class="icon">🏠</span>
+        <span>Home</span>
+      </button>
+      <button class="nav-btn" data-view="shelves">
+        <span class="icon">📚</span>
+        <span>Shelves</span>
+      </button>
+      <button class="nav-btn" data-view="discover">
+        <span class="icon">🔍</span>
+        <span>Discover</span>
+      </button>
+      <button class="nav-btn" data-view="stats">
+        <span class="icon">📊</span>
+        <span>Stats</span>
+      </button>
+      <button class="nav-btn" data-view="profile">
+        <span class="icon">👤</span>
+        <span>Profile</span>
+      </button>
+    </div>
+  </footer>
+
+  <!-- QR / barcode scanner library -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+  <script>
+    const STORAGE_KEY = "mvBookAppDataV1";
+
+        let currentOnlineResult = null;
+
+    if (CanvasRenderingContext2D && !CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+        r = Math.min(r, w / 2, h / 2);
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.lineTo(x + w, y + h - r);
+        this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.lineTo(x + r, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.lineTo(x, y + r);
+        this.quadraticCurveTo(x, y, x + r, y);
+        this.closePath();
+        return this;
+      };
+    }
+
+
+const GENRE_OPTIONS = [
+  "Fantasy",
+  "Science Fiction",
+  "Mystery",
+  "Thriller",
+  "Romance",
+  "Non-fiction",
+  "Biography",
+  "History",
+  "Self-help",
+  "Technology"
+];
+
+const FORMAT_OPTIONS = ["Print", "E-book", "Audiobook"];
+
+const PACE_OPTIONS = ["Relaxed", "Steady", "Voracious"];
+
+
+let state = {
+      books: [],
+      user: {
+        name: "You",
+        yearlyGoal: 20,
+        booksReadThisYear: 0,
+      },
+    };
+
+    let currentView = "home";
+    let currentBookId = null;
+    let html5Scanner = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const data = JSON.parse(raw);
+          state = Object.assign(state, data);
+        } else {
+          seedSampleData();
+        }
+      } catch (e) {
+        console.warn("Failed to load state, seeding sample data", e);
+        seedSampleData();
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function seedSampleData() {
+      const sampleBooks = [
+        {
+          id: "b1",
+          title: "The Pragmatic Programmer",
+          author: "Andrew Hunt, David Thomas",
+          year: 1999,
+          shelf: "reading",
+          rating: 4,
+          description:
+            "Classic book about the craft and mindset of modern software development.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/41as+WafrFL._SX377_BO1,204,203,200_.jpg",
+          pagesRead: 120,
+          totalPages: 320,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+        {
+          id: "b2",
+          title: "Deep Work",
+          author: "Cal Newport",
+          year: 2016,
+          shelf: "want",
+          rating: 0,
+          description:
+            "On the value of focused, distraction-free work in a noisy world.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/41g5c5u5v8L._SX329_BO1,204,203,200_.jpg",
+          pagesRead: 0,
+          totalPages: 304,
+          reviews: [],
+          addedAt: Date.now() - 86400000 * 3,
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+        {
+          id: "b3",
+          title: "Atomic Habits",
+          author: "James Clear",
+          year: 2018,
+          shelf: "read",
+          rating: 5,
+          description:
+            "A practical framework for building good habits and breaking bad ones using small, incremental changes.",
+          coverUrl:
+            "https://images-na.ssl-images-amazon.com/images/I/51-uspgqWIL._SX328_BO1,204,203,200_.jpg",
+          pagesRead: 250,
+          totalPages: 250,
+          reviews: [
+            {
+              text: "Super practical, easy to implement ideas. Great for tweaking routines.",
+              createdAt: Date.now() - 86400000 * 2,
+            },
+          ],
+          addedAt: Date.now() - 86400000 * 10,
+          finishedAt: new Date().getFullYear(),
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        },
+      ];
+      state.books = sampleBooks;
+      state.user.booksReadThisYear = 1;
+      state.user.favoriteGenres = state.user.favoriteGenres || [];
+      state.user.favoriteAuthors = state.user.favoriteAuthors || "";
+      state.user.preferredFormats = state.user.preferredFormats || [];
+      state.user.readingPace = state.user.readingPace || "steady";
+      saveState();
+    }
+
+    function setView(view) {
+      currentView = view;
+      updateBrandSubtitle();
+
+      document.querySelectorAll(".view").forEach((v) => {
+        v.classList.toggle("active", v.id === "view-" + view);
+      });
+
+      document.querySelectorAll(".nav-btn").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.view === view);
+      });
+
+      renderAll();
+    }
+
+    
+function renderAll() {
+      renderHeaderStats();
+      updateBrandTitle();
+      renderHome();
+      renderShelves();
+      renderDiscover();
+      renderProfile();
+      renderStats();
+    }
+
+    function renderStats() {
+      const statsSection = document.getElementById("view-stats");
+      if (!statsSection) return;
+      drawGoalChart();
+      drawShelvesChart();
+      drawRatingsChart();
+      drawYearsChart();
+    }
+
+    function getChartContext(id) {
+      const canvas = document.getElementById(id);
+      if (!canvas) return null;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      return ctx;
+    }
+
+    function drawGoalChart() {
+      const ctx = getChartContext("chartGoal");
+      if (!ctx) return;
+      const totalWidth = ctx.canvas.width;
+      const totalHeight = ctx.canvas.height;
+      const padding = 20;
+
+      const goal = state.user.yearlyGoal || 0;
+      const done = state.user.booksReadThisYear || 0;
+      const ratio = goal > 0 ? Math.min(done / goal, 1) : 0;
+
+      const x = padding;
+      const y = totalHeight / 2 - 12;
+      const w = totalWidth - padding * 2;
+      const h = 24;
+
+      ctx.fillStyle = "#d4def4";
+      ctx.roundRect(x, y, w, h, 12);
+      ctx.fill();
+
+      ctx.fillStyle = "#5b8fd8";
+      ctx.roundRect(x, y, w * ratio, h, 12);
+      ctx.fill();
+
+      ctx.fillStyle = "#4a5568";
+      ctx.font = "12px system-ui";
+      const label = goal > 0 ? done + " / " + goal + " books" : done + " books (no goal set)";
+      ctx.fillText(label, padding, y - 6);
+    }
+
+    function drawShelvesChart() {
+      const ctx = getChartContext("chartShelves");
+      if (!ctx) return;
+      const width = ctx.canvas.width;
+      const height = ctx.canvas.height;
+      const padding = 24;
+
+      const counts = {
+        Want: state.books.filter((b) => b.shelf === "want").length,
+        Reading: state.books.filter((b) => b.shelf === "reading").length,
+        Read: state.books.filter((b) => b.shelf === "read").length,
+      };
+
+      const labels = Object.keys(counts);
+      const values = labels.map((k) => counts[k]);
+      const maxVal = Math.max(1, ...values);
+
+      const barWidth = (width - padding * 2) / (labels.length * 1.6);
+      const baseY = height - padding;
+
+      labels.forEach((label, i) => {
+        const val = values[i];
+        const barHeight = (val / maxVal) * (height - padding * 2);
+
+        const cx = padding + i * (barWidth * 1.6) + barWidth / 2;
+        const barX = cx - barWidth / 2;
+        const barY = baseY - barHeight;
+
+        ctx.fillStyle = "#dde5f4";
+        ctx.roundRect(barX, baseY - (height - padding * 2), barWidth, height - padding * 2, 10);
+        ctx.fill();
+
+        ctx.fillStyle = i === 0 ? "#a5b4fc" : i === 1 ? "#5b8fd8" : "#2b6cb0";
+        ctx.roundRect(barX, barY, barWidth, barHeight, 10);
+        ctx.fill();
+
+        ctx.fillStyle = "#4a5568";
+        ctx.font = "11px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(String(val), cx, barY - 4);
+
+        ctx.fillStyle = "#718096";
+        ctx.fillText(label, cx, baseY + 14);
+      });
+    }
+
+    function drawRatingsChart() {
+      const ctx = getChartContext("chartRatings");
+      if (!ctx) return;
+      const width = ctx.canvas.width;
+      const height = ctx.canvas.height;
+      const padding = 24;
+
+      const buckets = [1, 2, 3, 4, 5];
+      const counts = buckets.map((star) =>
+        state.books.filter((b) => (b.rating || 0) === star).length
+      );
+      const maxVal = Math.max(1, ...counts);
+
+      const barWidth = (width - padding * 2) / (buckets.length * 1.6);
+      const baseY = height - padding;
+
+      buckets.forEach((star, i) => {
+        const val = counts[i];
+        const barHeight = (val / maxVal) * (height - padding * 2);
+
+        const cx = padding + i * (barWidth * 1.6) + barWidth / 2;
+        const barX = cx - barWidth / 2;
+        const barY = baseY - barHeight;
+
+        ctx.fillStyle = "#e6e8f5";
+        ctx.roundRect(barX, baseY - (height - padding * 2), barWidth, height - padding * 2, 10);
+        ctx.fill();
+
+        ctx.fillStyle = "#f6ad55";
+        ctx.roundRect(barX, barY, barWidth, barHeight, 10);
+        ctx.fill();
+
+        ctx.fillStyle = "#4a5568";
+        ctx.font = "11px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(String(val), cx, barY - 4);
+
+        ctx.fillStyle = "#718096";
+        ctx.fillText(star + "★", cx, baseY + 14);
+      });
+    }
+
+    function drawYearsChart() {
+      const ctx = getChartContext("chartYears");
+      if (!ctx) return;
+      const width = ctx.canvas.width;
+      const height = ctx.canvas.height;
+      const padding = 24;
+
+      const countsByYear = {};
+      state.books.forEach((b) => {
+        if (!b.finishedAt) return;
+        const d = new Date(b.finishedAt);
+        if (isNaN(d.getTime())) return;
+        const y = d.getFullYear();
+        countsByYear[y] = (countsByYear[y] || 0) + 1;
+      });
+
+      const years = Object.keys(countsByYear)
+        .map((y) => Number(y))
+        .sort((a, b) => a - b);
+
+      if (!years.length) {
+        ctx.fillStyle = "#718096";
+        ctx.font = "12px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("No finished books with dates yet.", width / 2, height / 2);
+        return;
+      }
+
+      const values = years.map((y) => countsByYear[y]);
+      const maxVal = Math.max(1, ...values);
+
+      const barWidth = (width - padding * 2) / (years.length * 1.6);
+      const baseY = height - padding;
+
+      years.forEach((year, i) => {
+        const val = values[i];
+        const barHeight = (val / maxVal) * (height - padding * 2);
+
+        const cx = padding + i * (barWidth * 1.6) + barWidth / 2;
+        const barX = cx - barWidth / 2;
+        const barY = baseY - barHeight;
+
+        ctx.fillStyle = "#dde7f6";
+        ctx.roundRect(barX, baseY - (height - padding * 2), barWidth, height - padding * 2, 10);
+        ctx.fill();
+
+        ctx.fillStyle = "#48bb78";
+        ctx.roundRect(barX, barY, barWidth, barHeight, 10);
+        ctx.fill();
+
+        ctx.fillStyle = "#4a5568";
+        ctx.font = "11px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(String(val), cx, barY - 4);
+
+        ctx.fillStyle = "#718096";
+        ctx.fillText(String(year), cx, baseY + 14);
+      });
+    }
+
+    function renderHeaderStats() {
+      const total = state.books.length;
+      const yearCount = state.user.booksReadThisYear || 0;
+      const headerStats = document.getElementById("headerStats");
+      headerStats.textContent = total + " books • " + yearCount + " this year";
+    }
+
+    
+    function updateBrandTitle() {
+      var name = (state.user && state.user.name) ? state.user.name.trim() : "";
+      var titleEl = document.querySelector(".brand-text strong");
+      if (!titleEl) return;
+      if (!name) {
+        titleEl.textContent = "MyVolumes";
+      } else {
+        titleEl.textContent = name;
+      }
+    }
+
+    
+    function updateBrandSubtitle() {
+      const el = document.getElementById("brandSubtitle");
+      if (!el) return;
+      let text = "Track what you read";
+      if (currentView === "shelves") {
+        text = "Your shelves & status";
+      } else if (currentView === "discover") {
+        text = "Discover & add books";
+      } else if (currentView === "profile") {
+        text = "Profile & goals";
+      }
+      el.textContent = text;
+    }
+
+function renderHome() {
+      const reading = state.books.filter((b) => b.shelf === "reading");
+      const homeReadingList = document.getElementById("homeReadingList");
+      const homeReadingEmpty = document.getElementById("homeReadingEmpty");
+      const homeReadingCount = document.getElementById("homeReadingCount");
+      const homeSummary = document.getElementById("homeSummary");
+
+      homeReadingList.innerHTML = "";
+
+      homeReadingCount.textContent =
+        reading.length === 1 ? "1 book" : reading.length + " books";
+
+      const goal = state.user.yearlyGoal || 0;
+      const yearCount = state.user.booksReadThisYear || 0;
+      homeSummary.textContent = "Reading " + reading.length + " • Goal " + yearCount + "/" + goal;
+
+      if (!reading.length) {
+        homeReadingEmpty.style.display = "block";
+        return;
+      }
+      homeReadingEmpty.style.display = "none";
+
+      reading.forEach((book) => {
+        homeReadingList.appendChild(createBookItem(book));
+      });
+    }
+
+    function renderShelves() {
+      const summaryEl = document.getElementById("shelvesSummary");
+      const listEl = document.getElementById("shelvesList");
+      const emptyEl = document.getElementById("shelvesEmpty");
+
+      const activeTab = document.querySelector("#shelfTabs .tab.active");
+      const shelfFilter = activeTab ? activeTab.dataset.shelf : "all";
+
+      let books = [].concat(state.books);
+
+      if (shelfFilter === "want") books = books.filter((b) => b.shelf === "want");
+      if (shelfFilter === "reading")
+        books = books.filter((b) => b.shelf === "reading");
+      if (shelfFilter === "read") books = books.filter((b) => b.shelf === "read");
+
+      const total = state.books.length;
+      const wantCount = state.books.filter((b) => b.shelf === "want").length;
+      const readingCount = state.books.filter((b) => b.shelf === "reading").length;
+      const readCount = state.books.filter((b) => b.shelf === "read").length;
+
+      summaryEl.textContent = total + " total • " + wantCount + " want • " + readingCount + " reading • " + readCount + " read";
+
+      listEl.innerHTML = "";
+      if (!books.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      books.forEach((book) => listEl.appendChild(createBookItem(book)));
+    }
+
+    function renderDiscover() {
+      const searchQuery = document
+        .getElementById("searchInput")
+        .value.trim()
+        .toLowerCase();
+      const listEl = document.getElementById("discoverList");
+      const emptyEl = document.getElementById("discoverEmpty");
+
+      let books = [].concat(state.books);
+
+      if (searchQuery) {
+        books = books.filter((b) => {
+          return (
+            b.title.toLowerCase().includes(searchQuery) ||
+            b.author.toLowerCase().includes(searchQuery)
+          );
+        });
+      }
+
+      listEl.innerHTML = "";
+      if (!books.length) {
+        emptyEl.style.display = "block";
+        return;
+      }
+      emptyEl.style.display = "none";
+
+      books.forEach((book) => listEl.appendChild(createBookItem(book)));
+    }
+
+    function renderProfile() {
+      const nameInput = document.getElementById("profileName");
+      const goalInput = document.getElementById("profileGoal");
+      const favAuthorsInput = document.getElementById("profileFavoriteAuthors");
+      const statTotalBooks = document.getElementById("statTotalBooks");
+      const statRead = document.getElementById("statRead");
+      const statYearCount = document.getElementById("statYearCount");
+      const statYearGoal = document.getElementById("statYearGoal");
+
+      if (!state.user) state.user = {};
+      if (!Array.isArray(state.user.favoriteGenres)) state.user.favoriteGenres = [];
+      if (!Array.isArray(state.user.preferredFormats)) state.user.preferredFormats = [];
+      if (!state.user.readingPace) state.user.readingPace = "steady";
+      if (typeof state.user.favoriteAuthors !== "string") state.user.favoriteAuthors = "";
+
+      nameInput.value = state.user.name || "You";
+      goalInput.value = state.user.yearlyGoal || 0;
+      favAuthorsInput.value = state.user.favoriteAuthors || "";
+
+      const total = state.books.length;
+      const readCount = state.books.filter((b) => b.shelf === "read").length;
+      const yearCount = state.user.booksReadThisYear || 0;
+      const goal = state.user.yearlyGoal || 0;
+
+      statTotalBooks.textContent = total;
+      statRead.textContent = readCount;
+      statYearCount.textContent = yearCount;
+      statYearGoal.textContent = "Goal: " + goal;
+
+      // Render genre pills
+      const genresContainer = document.getElementById("profileGenres");
+      if (genresContainer) {
+        genresContainer.innerHTML = "";
+        GENRE_OPTIONS.forEach((g) => {
+          const pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "pill-option";
+          pill.textContent = g;
+          pill.dataset.value = g;
+          if (state.user.favoriteGenres.includes(g)) {
+            pill.classList.add("active");
+          }
+          pill.addEventListener("click", () => {
+            pill.classList.toggle("active");
+          });
+          genresContainer.appendChild(pill);
+        });
+      }
+
+      // Render format pills
+      const formatsContainer = document.getElementById("profileFormats");
+      if (formatsContainer) {
+        formatsContainer.innerHTML = "";
+        FORMAT_OPTIONS.forEach((f) => {
+          const pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "pill-option";
+          pill.textContent = f;
+          pill.dataset.value = f;
+          if ((state.user.preferredFormats || []).includes(f)) {
+            pill.classList.add("active");
+          }
+          pill.addEventListener("click", () => {
+            pill.classList.toggle("active");
+          });
+          formatsContainer.appendChild(pill);
+        });
+      }
+
+      // Render pace pills (single-select)
+      const paceContainer = document.getElementById("profilePace");
+      if (paceContainer) {
+        paceContainer.innerHTML = "";
+        PACE_OPTIONS.forEach((p) => {
+          const pill = document.createElement("button");
+          pill.type = "button";
+          pill.className = "pill-option";
+          pill.textContent = p;
+          pill.dataset.value = p;
+          if ((state.user.readingPace || "Steady").toLowerCase() === p.toLowerCase()) {
+            pill.classList.add("active");
+          }
+          pill.addEventListener("click", () => {
+            paceContainer.querySelectorAll(".pill-option").forEach((el) =>
+              el.classList.remove("active")
+            );
+            pill.classList.add("active");
+          });
+          paceContainer.appendChild(pill);
+        });
+      }
+    }
+
+    function createBookItem(book) {
+      const item = document.createElement("div");
+      item.className = "book-item";
+
+      const cover = document.createElement("div");
+      cover.className = "book-cover";
+      const img = document.createElement("img");
+      img.src =
+        book.coverUrl ||
+        "https://dummyimage.com/200x300/edf2fb/66758f.png&text=No+Cover";
+      img.alt = book.title;
+      cover.appendChild(img);
+
+      const main = document.createElement("div");
+      main.className = "book-main";
+
+      const title = document.createElement("div");
+      title.className = "book-title";
+      title.textContent = book.title;
+
+      const author = document.createElement("div");
+      author.className = "book-author";
+      author.textContent = book.author || "Unknown author";
+
+      const meta = document.createElement("div");
+      meta.className = "book-meta";
+
+      const yearSpan = document.createElement("span");
+      yearSpan.textContent = book.year ? book.year : "Year —";
+      meta.appendChild(yearSpan);
+
+      const stars = document.createElement("div");
+      stars.className = "stars";
+      for (let i = 1; i <= 5; i++) {
+        const s = document.createElement("span");
+        s.textContent = "★";
+        if (book.rating && i <= book.rating) s.classList.add("filled");
+        stars.appendChild(s);
+      }
+      meta.appendChild(stars);
+
+      const actions = document.createElement("div");
+      actions.className = "book-actions";
+
+      const shelfPill = document.createElement("div");
+      shelfPill.className = "shelf-pill";
+      shelfPill.textContent = formatShelfName(book.shelf);
+
+      const detailsBtn = document.createElement("button");
+      detailsBtn.className = "btn btn-sm";
+      detailsBtn.textContent = "Details";
+      detailsBtn.addEventListener("click", () => openBookModal(book.id));
+
+      actions.appendChild(shelfPill);
+      actions.appendChild(detailsBtn);
+
+      if (book.totalPages) {
+        const progressRow = document.createElement("div");
+        progressRow.className = "progress-row";
+        const bar = document.createElement("div");
+        bar.className = "progress-bar";
+        const fill = document.createElement("div");
+        fill.className = "progress-fill";
+        const pct = Math.min(
+          100,
+          Math.round((book.pagesRead || 0) * 100 / book.totalPages)
+        );
+        fill.style.width = pct + "%";
+        bar.appendChild(fill);
+
+        const text = document.createElement("div");
+        text.className = "progress-text";
+        text.textContent = pct + "%";
+
+        progressRow.appendChild(bar);
+        progressRow.appendChild(text);
+        main.appendChild(progressRow);
+      }
+
+      main.appendChild(title);
+      main.appendChild(author);
+      main.appendChild(meta);
+      main.appendChild(actions);
+
+      item.appendChild(cover);
+      item.appendChild(main);
+
+      return item;
+    }
+
+    function formatShelfName(shelf) {
+      if (shelf === "want") return "Want to Read";
+      if (shelf === "reading") return "Reading";
+      if (shelf === "read") return "Read";
+      return "Unsorted";
+    }
+
+    function openBookModal(bookId) {
+      const book = state.books.find((b) => b.id === bookId);
+      if (!book) return;
+      currentBookId = bookId;
+
+      document.getElementById("modalTitle").textContent = book.title;
+      document.getElementById("modalAuthor").textContent =
+        book.author || "Unknown author";
+
+      const coverEl = document.getElementById("modalCover");
+      coverEl.src =
+        book.coverUrl ||
+        "https://dummyimage.com/300x450/edf2fb/66758f.png&text=No+Cover";
+
+      const shelves = [
+        { id: "want", label: "Want to Read" },
+        { id: "reading", label: "Reading" },
+        { id: "read", label: "Read" },
+      ];
+      const shelfEl = document.getElementById("modalShelfOptions");
+      shelfEl.innerHTML = "";
+      shelves.forEach((s) => {
+        const pill = document.createElement("button");
+        pill.type = "button";
+        pill.className = "pill-option" + (book.shelf === s.id ? " active" : "");
+        pill.textContent = s.label;
+        pill.dataset.shelf = s.id;
+        pill.addEventListener("click", () => {
+          book.shelf = s.id;
+          if (s.id === "read" && !book.finishedAt) {
+            book.finishedAt = new Date().getFullYear();
+            state.user.booksReadThisYear =
+              (state.user.booksReadThisYear || 0) + 1;
+          }
+          saveState();
+          openBookModal(book.id);
+        });
+        shelfEl.appendChild(pill);
+      });
+
+      const starContainer = document.getElementById("modalStars");
+      starContainer.querySelectorAll("span").forEach((span) => {
+        const rating = Number(span.getAttribute("data-rating"));
+        span.classList.toggle("filled", book.rating && rating <= book.rating);
+      });
+
+      document.getElementById("modalPagesRead").value =
+        book.pagesRead != null ? book.pagesRead : "";
+      document.getElementById("modalTotalPages").value =
+        book.totalPages != null ? book.totalPages : "";
+
+      const pct =
+        book.totalPages && book.pagesRead != null
+          ? Math.min(100, Math.round(book.pagesRead * 100 / book.totalPages))
+          : 0;
+
+      document.getElementById("modalProgressFill").style.width = pct + "%";
+      document.getElementById("modalProgressText").textContent = pct + "%";
+      document.getElementById(
+        "modalProgressHint"
+      ).textContent = book.totalPages
+        ? (book.pagesRead || 0) + " / " + book.totalPages + " pages"
+        : "Set total pages to track progress.";
+
+      const yearBadge = document.getElementById("modalYearBadge");
+      yearBadge.textContent = book.year ? "Year: " + book.year : "Year: —";
+
+      document.getElementById("modalDescription").textContent =
+        book.description || "No description yet for this title.";
+
+      const reviewsList = document.getElementById("modalReviewsList");
+      const reviewsEmpty = document.getElementById("modalReviewsEmpty");
+      reviewsList.innerHTML = "";
+      if (book.reviews && book.reviews.length) {
+        reviewsEmpty.style.display = "none";
+        book.reviews
+          .slice()
+          .reverse()
+          .forEach((r) => {
+            const item = document.createElement("div");
+            item.className = "review-item";
+            const time = document.createElement("time");
+            const d = new Date(r.createdAt || Date.now());
+            time.textContent = d.toLocaleDateString();
+            const text = document.createElement("div");
+            text.textContent = r.text;
+            item.appendChild(time);
+            item.appendChild(text);
+            reviewsList.appendChild(item);
+          });
+      } else {
+        reviewsEmpty.style.display = "block";
+      }
+
+      document.getElementById("modalReviewText").value = "";
+
+      document.getElementById("modalBackdrop").classList.add("show");
+    }
+
+    function closeBookModal() {
+      document.getElementById("modalBackdrop").classList.remove("show");
+      currentBookId = null;
+    }
+
+    function deleteCurrentBook() {
+      if (!currentBookId) return;
+      const book = state.books.find((b) => b.id === currentBookId);
+      if (!book) return;
+
+      if (!confirm('Remove "' + book.title + '" from your library?')) return;
+
+      state.books = state.books.filter((b) => b.id !== currentBookId);
+
+      if (book.shelf === "read" && book.finishedAt && state.user.booksReadThisYear) {
+        state.user.booksReadThisYear = Math.max(0, state.user.booksReadThisYear - 1);
+      }
+
+      saveState();
+      closeBookModal();
+    }
+
+    function openScanner() {
+      const backdrop = document.getElementById("scanBackdrop");
+      backdrop.classList.add("show");
+
+      const scanContainer = document.getElementById("scanReader");
+      scanContainer.innerHTML = "";
+
+      if (typeof Html5QrcodeScanner === "undefined") {
+        alert("Scanner library failed to load. Check your connection.");
+        return;
+      }
+
+      const config = {
+        fps: 8,
+        qrbox: { width: 250, height: 250 },
+        formatsToSupport: [
+          Html5QrcodeSupportedFormats.EAN_13,
+          Html5QrcodeSupportedFormats.EAN_8,
+          Html5QrcodeSupportedFormats.UPC_A,
+          Html5QrcodeSupportedFormats.UPC_E,
+          Html5QrcodeSupportedFormats.QR_CODE
+        ]
+      };
+
+      html5Scanner = new Html5QrcodeScanner("scanReader", config, false);
+      html5Scanner.render(onScanSuccess, onScanError);
+    }
+
+    function onScanSuccess(decodedText, decodedResult) {
+      if (!html5Scanner) return;
+      html5Scanner.clear().then(() => {
+        html5Scanner = null;
+        document.getElementById("scanBackdrop").classList.remove("show");
+        document.getElementById("scanReader").innerHTML = "";
+        handleScannedCode(decodedText);
+      }).catch((err) => {
+        console.error(err);
+        document.getElementById("scanBackdrop").classList.remove("show");
+      });
+    }
+
+    function onScanError(errorMessage) {
+    }
+
+    function closeScanner() {
+      const backdrop = document.getElementById("scanBackdrop");
+      if (html5Scanner) {
+        html5Scanner.clear().then(() => {
+          html5Scanner = null;
+          document.getElementById("scanReader").innerHTML = "";
+          backdrop.classList.remove("show");
+        }).catch((err) => {
+          console.error(err);
+          backdrop.classList.remove("show");
+        });
+      } else {
+        backdrop.classList.remove("show");
+        document.getElementById("scanReader").innerHTML = "";
+      }
+    }
+
+    function handleScannedCode(text) {
+      const cleaned = text.replace(/[^0-9Xx]/g, "");
+      const isbnInput = document.getElementById("isbnInput");
+      isbnInput.value = cleaned || text;
+      lookupIsbn(cleaned || text);
+    }
+
+    async function lookupIsbnFromInput() {
+      const raw = document.getElementById("isbnInput").value.trim();
+      if (!raw) {
+        alert("Enter a code or scan one first.");
+        return;
+      }
+      const cleaned = raw.replace(/[^0-9Xx]/g, "");
+      await lookupIsbn(cleaned || raw);
+    }
+
+    async function lookupIsbn(code) {
+      const trimmed = (code || "").trim();
+      if (!trimmed) return;
+
+      const isbnBtn = document.getElementById("isbnLookupBtn");
+      const originalText = isbnBtn.textContent;
+      isbnBtn.textContent = "Looking up…";
+      isbnBtn.disabled = true;
+
+      try {
+        const url = "https://www.googleapis.com/books/v1/volumes?q=isbn:" + encodeURIComponent(trimmed);
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Lookup failed: " + res.status);
+        }
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          alert("No book found for that ISBN/code.");
+          return;
+        }
+        const item = data.items[0];
+        const info = item.volumeInfo || {};
+        const img = info.imageLinks || {};
+        const pub = info.publishedDate || "";
+        const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+        const book = {
+          id: "b" + Date.now(),
+          title: info.title || trimmed,
+          author: (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown",
+          year: isNaN(year) ? null : year,
+          shelf: "want",
+          rating: 0,
+          description: info.description || "",
+          coverUrl: img.thumbnail || img.smallThumbnail || "",
+          pagesRead: 0,
+          totalPages: info.pageCount || null,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: info.averageRating || 0,
+          externalRatingsCount: info.ratingsCount || 0,
+          infoLink: info.infoLink || (item.selfLink || "")
+        };
+
+        state.books.unshift(book);
+        saveState();
+        setView("shelves");
+        openBookModal(book.id);
+      } catch (err) {
+        console.error(err);
+        alert("There was a problem looking up that code.");
+      } finally {
+        isbnBtn.textContent = originalText;
+        isbnBtn.disabled = false;
+      }
+    }
+
+    async function searchOnlineBooks() {
+      const query = document.getElementById("onlineSearchInput").value.trim();
+      const listEl = document.getElementById("onlineResultsList");
+      const emptyEl = document.getElementById("onlineResultsEmpty");
+
+      if (!query) {
+        alert("Enter a title or author to search.");
+        return;
+      }
+
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Searching online…";
+
+      try {
+        const url = "https://www.googleapis.com/books/v1/volumes?q=" + encodeURIComponent(query) + "&maxResults=10";
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Search failed: " + res.status);
+        }
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          emptyEl.textContent = "No online results for that search.";
+          return;
+        }
+
+        emptyEl.textContent = "";
+        listEl.innerHTML = "";
+
+        data.items.forEach((item) => {
+          const info = item.volumeInfo || {};
+          const img = info.imageLinks || {};
+          const pub = info.publishedDate || "";
+          const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+          const resultDiv = document.createElement("div");
+          resultDiv.className = "book-item";
+
+          const coverDiv = document.createElement("div");
+          coverDiv.className = "book-cover";
+          const imgEl = document.createElement("img");
+          imgEl.src = img.thumbnail || img.smallThumbnail || "https://dummyimage.com/200x300/edf2fb/66758f.png&text=No+Cover";
+          imgEl.alt = info.title || "Book cover";
+          coverDiv.appendChild(imgEl);
+
+          const mainDiv = document.createElement("div");
+          mainDiv.className = "book-main";
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "book-title";
+          titleDiv.textContent = info.title || "Untitled";
+
+          const authorDiv = document.createElement("div");
+          authorDiv.className = "book-author";
+          authorDiv.textContent = (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown author";
+
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "book-meta";
+
+          const yearSpan = document.createElement("span");
+          yearSpan.textContent = year && !isNaN(year) ? year : "Year —";
+          metaDiv.appendChild(yearSpan);
+
+          if (info.averageRating) {
+            const ratingSpan = document.createElement("span");
+            ratingSpan.textContent = info.averageRating.toFixed(1) + "/5 (" + (info.ratingsCount || 0) + ")";
+            metaDiv.appendChild(ratingSpan);
+          }
+
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "book-actions";
+
+          const sourcePill = document.createElement("div");
+          sourcePill.className = "shelf-pill";
+          sourcePill.textContent = "Online result";
+
+          const addBtn = document.createElement("button");
+          addBtn.className = "btn btn-sm";
+          addBtn.textContent = "Book Details";
+
+          const resultData = {
+            title: info.title || query,
+            author: (info.authors && info.authors.length) ? info.authors.join(", ") : "Unknown",
+            year: year && !isNaN(year) ? year : null,
+            description: info.description || "",
+            coverUrl: img.thumbnail || img.smallThumbnail || "",
+            pageCount: info.pageCount || null,
+            categories: info.categories || [],
+            averageRating: info.averageRating || 0,
+            ratingsCount: info.ratingsCount || 0,
+            infoLink: info.infoLink || (item.selfLink || "")
+          };
+
+          addBtn.addEventListener("click", () => {
+            openOnlineResultDetails(resultData);
+          });
+
+          actionsDiv.appendChild(sourcePill);
+          actionsDiv.appendChild(addBtn);
+
+          mainDiv.appendChild(titleDiv);
+          mainDiv.appendChild(authorDiv);
+          mainDiv.appendChild(metaDiv);
+          mainDiv.appendChild(actionsDiv);
+
+          const detailDiv = document.createElement("div");
+          detailDiv.className = "hint";
+          let snippet = info.description || "No description available from the online source.";
+          if (snippet.length > 220) snippet = snippet.slice(0, 217) + "...";
+          let extraBits = [];
+          if (info.pageCount) extraBits.push(info.pageCount + " pages");
+          if (info.categories && info.categories.length) extraBits.push(info.categories.slice(0, 2).join(", "));
+          if (extraBits.length) snippet += " • " + extraBits.join(" • ");
+          detailDiv.textContent = snippet;
+          mainDiv.appendChild(detailDiv);
+
+          resultDiv.appendChild(coverDiv);
+          resultDiv.appendChild(mainDiv);
+
+          listEl.appendChild(resultDiv);
+        });
+      } catch (err) {
+        console.error(err);
+        emptyEl.textContent = "Error searching online. Try again.";
+      }
+    }
+
+    
+    function openOnlineResultDetails(data) {
+      currentOnlineResult = data || null;
+      if (!currentOnlineResult) return;
+
+      const titleEl = document.getElementById("onlineModalTitle");
+      const authorEl = document.getElementById("onlineModalAuthor");
+      const coverEl = document.getElementById("onlineModalCover");
+      const metaEl = document.getElementById("onlineModalMeta");
+      const ratingEl = document.getElementById("onlineModalRating");
+      const catEl = document.getElementById("onlineModalCategories");
+      const descEl = document.getElementById("onlineModalDescription");
+      const linkEl = document.getElementById("onlineModalInfoLink");
+
+      titleEl.textContent = currentOnlineResult.title || "Untitled";
+      authorEl.textContent = currentOnlineResult.author || "Unknown author";
+
+      coverEl.src = currentOnlineResult.coverUrl ||
+        "https://dummyimage.com/300x450/edf2fb/66758f.png&text=No+Cover";
+
+      const pieces = [];
+      if (currentOnlineResult.year) pieces.push("Year: " + currentOnlineResult.year);
+      if (currentOnlineResult.pageCount) pieces.push(currentOnlineResult.pageCount + " pages");
+      metaEl.textContent = pieces.length ? pieces.join(" • ") : "No basic metadata available.";
+
+      if (currentOnlineResult.averageRating) {
+        ratingEl.textContent =
+          currentOnlineResult.averageRating.toFixed(1) +
+          "/5 (" +
+          (currentOnlineResult.ratingsCount || 0) +
+          " ratings)";
+      } else {
+        ratingEl.textContent = "No rating data.";
+      }
+
+      if (currentOnlineResult.categories && currentOnlineResult.categories.length) {
+        catEl.textContent = currentOnlineResult.categories.join(", ");
+      } else {
+        catEl.textContent = "No categories from source.";
+      }
+
+      descEl.textContent =
+        currentOnlineResult.description ||
+        "No description available from the online source.";
+
+      if (currentOnlineResult.infoLink) {
+        const a = document.createElement("a");
+        a.href = currentOnlineResult.infoLink;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.textContent = "Open in browser";
+        linkEl.innerHTML = "";
+        linkEl.appendChild(a);
+      } else {
+        linkEl.textContent = "No external link from source.";
+      }
+
+      document.getElementById("onlineModalBackdrop").classList.add("show");
+    }
+
+    function closeOnlineResultDetails() {
+      document.getElementById("onlineModalBackdrop").classList.remove("show");
+      currentOnlineResult = null;
+    }
+
+    function addCurrentOnlineResultToLibrary() {
+      if (!currentOnlineResult) return;
+
+      const info = currentOnlineResult;
+      const book = {
+        id: "b" + Date.now(),
+        title: info.title || "Untitled",
+        author: info.author || "Unknown",
+        year: info.year || null,
+        shelf: "want",
+        rating: 0,
+        description: info.description || "",
+        coverUrl: info.coverUrl || "",
+        pagesRead: 0,
+        totalPages: info.pageCount || null,
+        reviews: [],
+        addedAt: Date.now(),
+        finishedAt: null,
+        externalRating: info.averageRating || 0,
+        externalRatingsCount: info.ratingsCount || 0,
+        infoLink: info.infoLink || ""
+      };
+
+      state.books.unshift(book);
+      saveState();
+      closeOnlineResultDetails();
+      setView("shelves");
+      openBookModal(book.id);
+    }
+
+function shareCurrentBook() {
+      if (!currentBookId) return;
+      const book = state.books.find((b) => b.id === currentBookId);
+      if (!book) return;
+
+      let lines = [];
+      lines.push("Title: " + book.title);
+      if (book.author) lines.push("Author: " + book.author);
+      if (book.year) lines.push("Year: " + book.year);
+      if (book.totalPages) lines.push("Pages: " + book.totalPages);
+      if (book.rating) lines.push("My rating: " + book.rating + "/5");
+      if (book.externalRating) {
+        lines.push("Global rating: " + book.externalRating + "/5 (" + (book.externalRatingsCount || 0) + " reviews)");
+      }
+      if (book.infoLink) lines.push("More info: " + book.infoLink);
+
+      const text = lines.join("\n");
+      const title = "Book: " + book.title;
+
+      if (navigator.share) {
+        navigator.share({
+          title: title,
+          text: text
+        }).catch(() => {
+        });
+      } else {
+        const subject = encodeURIComponent(title);
+        const body = encodeURIComponent(text);
+        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
+      }
+    }
+
+    async function enrichCurrentBookFromOnline() {
+      if (!currentBookId) return;
+      const book = state.books.find((b) => b.id === currentBookId);
+      if (!book) return;
+
+      const query = [book.title || "", book.author || ""].join(" ").trim();
+      if (!query) {
+        alert("This book needs at least a title or author to look up online details.");
+        return;
+      }
+
+      const btn = document.getElementById("modalOnlineDetailsBtn");
+      if (!btn) return;
+
+      const originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Looking up…";
+
+      try {
+        const url = "https://www.googleapis.com/books/v1/volumes?q=" + encodeURIComponent(query) + "&maxResults=1";
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("Search failed: " + res.status);
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          alert("No online details found for this title.");
+          return;
+        }
+
+        const item = data.items[0];
+        const info = item.volumeInfo || {};
+        const img = info.imageLinks || {};
+        const pub = info.publishedDate || "";
+        const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+        if (!book.description && info.description) book.description = info.description;
+        if (!book.coverUrl && (img.thumbnail || img.smallThumbnail)) book.coverUrl = img.thumbnail || img.smallThumbnail;
+        if (!book.totalPages && info.pageCount) book.totalPages = info.pageCount;
+        if (!book.year && year && !isNaN(year)) book.year = year;
+
+        book.externalRating = info.averageRating || 0;
+        book.externalRatingsCount = info.ratingsCount || 0;
+        book.infoLink = info.infoLink || (item.selfLink || book.infoLink || "");
+
+        saveState();
+        openBookModal(book.id);
+      } catch (err) {
+        console.error(err);
+        alert("There was a problem fetching online details.");
+      } finally {
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    }
+
+
+    async function refreshSuggestions() {
+      const listEl = document.getElementById("suggestionsList");
+      const emptyEl = document.getElementById("suggestionsEmpty");
+      if (!listEl || !emptyEl) return;
+
+      if (!state.user) state.user = {};
+      if (!Array.isArray(state.user.favoriteGenres)) state.user.favoriteGenres = [];
+      if (!Array.isArray(state.user.preferredFormats)) state.user.preferredFormats = [];
+      if (typeof state.user.favoriteAuthors !== "string") state.user.favoriteAuthors = "";
+
+      const genres = (state.user.favoriteGenres || []).slice(0, 3);
+      const favAuthors = (state.user.favoriteAuthors || "")
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean)
+        .slice(0, 2);
+
+      const highRated = state.books
+        .filter((b) => b.shelf === "read" && (b.rating || 0) >= 4)
+        .slice(0, 3);
+
+      let queryParts = [];
+
+      genres.forEach((g) => queryParts.push("subject:" + g));
+      favAuthors.forEach((a) => queryParts.push("inauthor:" + a));
+      highRated.forEach((b) => {
+        if (b.title) queryParts.push(b.title);
+      });
+
+      let query = queryParts.join(" ");
+      if (!query.trim()) {
+        query = "bestseller books";
+      }
+
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Building suggestions…";
+
+      try {
+        const url =
+          "https://www.googleapis.com/books/v1/volumes?q=" +
+          encodeURIComponent(query) +
+          "&maxResults=10";
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error("Suggestions fetch failed: " + res.status);
+        }
+        const data = await res.json();
+        if (!data.items || !data.items.length) {
+          emptyEl.textContent =
+            "No suggestions from the online source. Try adjusting your profile genres or authors.";
+          return;
+        }
+
+        emptyEl.textContent = "";
+        listEl.innerHTML = "";
+
+        const existingTitles = new Set(
+          state.books.map((b) => (b.title || "").toLowerCase())
+        );
+
+        data.items.forEach((item) => {
+          const info = item.volumeInfo || {};
+          const img = info.imageLinks || {};
+          const pub = info.publishedDate || "";
+          const year = pub ? parseInt(pub.slice(0, 4), 10) : null;
+
+          const resultDiv = document.createElement("div");
+          resultDiv.className = "book-item";
+
+          const coverDiv = document.createElement("div");
+          coverDiv.className = "book-cover";
+          const imgEl = document.createElement("img");
+          imgEl.src =
+            img.thumbnail ||
+            img.smallThumbnail ||
+            "https://dummyimage.com/200x300/edf2fb/66758f.png&text=No+Cover";
+          imgEl.alt = info.title || "Book cover";
+          coverDiv.appendChild(imgEl);
+
+          const mainDiv = document.createElement("div");
+          mainDiv.className = "book-main";
+
+          const titleDiv = document.createElement("div");
+          titleDiv.className = "book-title";
+          titleDiv.textContent = info.title || "Untitled";
+
+          const authorDiv = document.createElement("div");
+          authorDiv.className = "book-author";
+          authorDiv.textContent =
+            info.authors && info.authors.length
+              ? info.authors.join(", ")
+              : "Unknown author";
+
+          const metaDiv = document.createElement("div");
+          metaDiv.className = "book-meta";
+
+          const yearSpan = document.createElement("span");
+          yearSpan.textContent =
+            year && !isNaN(year) ? year : "Year —";
+          metaDiv.appendChild(yearSpan);
+
+          const suggestedSpan = document.createElement("span");
+          suggestedSpan.textContent = "Suggested";
+          metaDiv.appendChild(suggestedSpan);
+
+          const inLibrary =
+            existingTitles.has((info.title || "").toLowerCase());
+          if (inLibrary) {
+            const libSpan = document.createElement("span");
+            libSpan.textContent = "In your library";
+            metaDiv.appendChild(libSpan);
+          }
+
+          const actionsDiv = document.createElement("div");
+          actionsDiv.className = "book-actions";
+
+          const sourcePill = document.createElement("div");
+          sourcePill.className = "shelf-pill";
+          sourcePill.textContent = "Suggested";
+
+          const detailsBtn = document.createElement("button");
+          detailsBtn.className = "btn btn-sm";
+          detailsBtn.textContent = "Book Details";
+
+          const resultData = {
+            title: info.title || "",
+            author:
+              info.authors && info.authors.length
+                ? info.authors.join(", ")
+                : "Unknown",
+            year: year && !isNaN(year) ? year : null,
+            description: info.description || "",
+            coverUrl: img.thumbnail || img.smallThumbnail || "",
+            pageCount: info.pageCount || null,
+            categories: info.categories || [],
+            averageRating: info.averageRating || 0,
+            ratingsCount: info.ratingsCount || 0,
+            infoLink: info.infoLink || item.selfLink || ""
+          };
+
+          detailsBtn.addEventListener("click", () => {
+            openOnlineResultDetails(resultData);
+          });
+
+          actionsDiv.appendChild(sourcePill);
+          actionsDiv.appendChild(detailsBtn);
+
+          mainDiv.appendChild(titleDiv);
+          mainDiv.appendChild(authorDiv);
+          mainDiv.appendChild(metaDiv);
+          mainDiv.appendChild(actionsDiv);
+
+          const detailDiv = document.createElement("div");
+          detailDiv.className = "hint";
+          let snippet =
+            info.description ||
+            "No description available from the online source.";
+          if (snippet.length > 220) snippet = snippet.slice(0, 217) + "...";
+          let extras = [];
+          if (info.pageCount) extras.push(info.pageCount + " pages");
+          if (info.categories && info.categories.length)
+            extras.push(info.categories.slice(0, 2).join(", "));
+          if (extras.length) snippet += " • " + extras.join(" • ");
+          detailDiv.textContent = snippet;
+
+          mainDiv.appendChild(detailDiv);
+
+          resultDiv.appendChild(coverDiv);
+          resultDiv.appendChild(mainDiv);
+
+          listEl.appendChild(resultDiv);
+        });
+      } catch (err) {
+        console.error(err);
+        // Offline / error fallback: suggest from existing library
+        listEl.innerHTML = "";
+        const fallback = state.books
+          .filter((b) => b.shelf === "read" || b.shelf === "want")
+          .slice(0, 5);
+
+        if (!fallback.length) {
+          emptyEl.textContent =
+            "Error building suggestions from online sources, and no local books to suggest from yet.";
+        } else {
+          emptyEl.textContent =
+            "Showing suggestions from your existing library (offline fallback).";
+          fallback.forEach((b) => {
+            const row = document.createElement("div");
+            row.className = "book-item";
+
+            const coverDiv = document.createElement("div");
+            coverDiv.className = "book-cover";
+            const imgEl = document.createElement("img");
+            imgEl.src =
+              b.coverUrl ||
+              "https://dummyimage.com/200x300/edf2fb/66758f.png&text=No+Cover";
+            coverDiv.appendChild(imgEl);
+
+            const mainDiv = document.createElement("div");
+            mainDiv.className = "book-main";
+
+            const titleDiv = document.createElement("div");
+            titleDiv.className = "book-title";
+            titleDiv.textContent = b.title || "Untitled";
+
+            const authorDiv = document.createElement("div");
+            authorDiv.className = "book-author";
+            authorDiv.textContent = b.author || "Unknown author";
+
+            const metaDiv = document.createElement("div");
+            metaDiv.className = "book-meta";
+            metaDiv.textContent =
+              (b.shelf === "read"
+                ? "From your Read shelf"
+                : "From your Want to Read shelf") +
+              (b.rating ? " • " + "★".repeat(b.rating) : "");
+
+            const actionsDiv = document.createElement("div");
+            actionsDiv.className = "book-actions";
+
+            const pill = document.createElement("div");
+            pill.className = "shelf-pill";
+            pill.textContent = "From your library";
+
+            const detailsBtn = document.createElement("button");
+            detailsBtn.className = "btn btn-sm";
+            detailsBtn.textContent = "Open";
+            detailsBtn.addEventListener("click", () => openBookModal(b.id));
+
+            actionsDiv.appendChild(pill);
+            actionsDiv.appendChild(detailsBtn);
+
+            mainDiv.appendChild(titleDiv);
+            mainDiv.appendChild(authorDiv);
+            mainDiv.appendChild(metaDiv);
+            mainDiv.appendChild(actionsDiv);
+
+            row.appendChild(coverDiv);
+            row.appendChild(mainDiv);
+            listEl.appendChild(row);
+          });
+        }
+      }
+    }
+
+
+    function openHelp(topic) {
+      const titleEl = document.getElementById("helpModalTitle");
+      const subEl = document.getElementById("helpModalSub");
+      const bodyEl = document.getElementById("helpModalBody");
+      if (!titleEl || !subEl || !bodyEl) return;
+
+      let title = "Help";
+      let sub = "";
+      let body = "";
+
+      switch (topic) {
+        case "home":
+          title = "Home";
+          sub = "Today & quick add";
+          body = "The Home tab shows what you are currently reading and lets you quickly add books.\n\n- 'Currently Reading' lists books on your Reading shelf. Tap Details to update progress, rating, and notes.\n- 'Quick Add' lets you add a simple title/author straight to Want to Read. Use Discover for full online details and cover art.";
+          break;
+        case "shelves":
+          title = "Shelves";
+          sub = "Organize Want / Reading / Read";
+          body = "The Shelves tab shows all books in your local library.\n\n- Use the pills at the top (All, Want, Reading, Read) to filter.\n- Each book shows shelf, rating, and (if set) progress.\n- Tap Details to move it between shelves, change rating, update pages, add reviews, or delete it.";
+          break;
+        case "discover":
+          title = "Discover";
+          sub = "Suggestions, online lookup & local search";
+          body = "The Discover tab is where you find and add books.\n\n- Suggestions for you: uses your profile (genres, authors, formats, pace) and highly rated Read books to build a query and fetch online suggestions. Tap Refresh to regenerate.\n- ISBN / Code: scan or type a barcode/ISBN to pull full data from Google Books and add to your library.\n- Online Book Search: search by title or author, open Book Details to review cover, description, rating and categories before adding.\n- Search your library: filters only the books already stored on this device.\n- Add a book (manual): type details yourself when online lookup isn't available.";
+          break;
+
+        case "stats":
+          title = "Stats";
+          sub = "Graphs of your reading";
+          body = "The Stats tab turns your reading into charts.\n\n- Reading goal: shows your progress against your yearly goal.\n- Shelves breakdown: compares how many books are in Want to Read, Reading, and Read.\n- Ratings: shows how often you give 1–5 star ratings.\n- Timeline: books finished per year (based on finished dates set in the book details).";
+          break;
+        case "profile":
+          title = "Profile";
+          sub = "Name, goals & storage";
+          body = "The Profile tab controls how MyVolumes behaves on this device.\n\n- Display name: shown in the header and used as your reader identity.\n- Yearly reading goal: how many books you want to finish this year.\n- Stats cards: Total, Read, and This Year are calculated from your shelves.\n- Data: everything is stored locally in this browser via localStorage. Clearing site data or using another browser/device will give you a separate library.";
+          break;
+        default:
+          title = "Help";
+          sub = "How this app works";
+          body = "MyVolumes is a local, browser-based reading tracker. Use Home and Shelves to manage your books, Discover to search/scan and add new titles, and Profile to set your name and yearly goal.";
+      }
+
+      titleEl.textContent = title;
+      subEl.textContent = sub;
+      bodyEl.textContent = body.replace(/\n/g, "\n");
+      document.getElementById("helpModalBackdrop").classList.add("show");
+    }
+
+    function closeHelp() {
+      const backdrop = document.getElementById("helpModalBackdrop");
+      if (backdrop) backdrop.classList.remove("show");
+    }
+
+
+    function initEventListeners() {
+
+      const isbnClearBtn = document.getElementById("isbnClearBtn");
+      if (isbnClearBtn) {
+        isbnClearBtn.addEventListener("click", () => {
+          const input = document.getElementById("isbnInput");
+          if (input) input.value = "";
+        });
+      }
+
+
+      // Clear online search results
+      const onlineClearBtn = document.getElementById("onlineClearBtn");
+      if (onlineClearBtn) {
+        onlineClearBtn.addEventListener("click", () => {
+          const input = document.getElementById("onlineSearchInput");
+          const listEl = document.getElementById("onlineResultsList");
+          const emptyEl = document.getElementById("onlineResultsEmpty");
+          if (input) input.value = "";
+          if (listEl) listEl.innerHTML = "";
+          if (emptyEl) {
+            emptyEl.textContent = "No online results yet. Try searching for a title or author.";
+          }
+        });
+      }
+
+      // Clear local library search
+      const localClearBtn = document.getElementById("localClearBtn");
+      if (localClearBtn) {
+        localClearBtn.addEventListener("click", () => {
+          const input = document.getElementById("searchInput");
+          if (input) {
+            input.value = "";
+          }
+          if (typeof renderDiscover === "function") {
+            renderDiscover();
+          }
+        });
+      }
+
+
+
+      const globalHelpBtn = document.getElementById("globalHelpBtn");
+      if (globalHelpBtn) {
+        globalHelpBtn.addEventListener("click", () => {
+          let topic = "";
+          if (currentView === "home") topic = "home";
+          else if (currentView === "shelves") topic = "shelves";
+          else if (currentView === "discover") topic = "discover";
+          else if (currentView === "profile") topic = "profile";
+          openHelp(topic);
+        });
+      }
+
+
+
+      // Section help buttons
+      document.querySelectorAll(".section-help-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const topic = btn.getAttribute("data-help") || "";
+          openHelp(topic);
+        });
+      });
+
+      const helpBackdrop = document.getElementById("helpModalBackdrop");
+      const helpCloseBtn = document.getElementById("helpModalCloseBtn");
+      if (helpCloseBtn) {
+        helpCloseBtn.addEventListener("click", () => {
+          closeHelp();
+        });
+      }
+      if (helpBackdrop) {
+        helpBackdrop.addEventListener("click", (e) => {
+          if (e.target.id === "helpModalBackdrop") {
+            closeHelp();
+          }
+        });
+      }
+
+
+
+      const suggBtn = document.getElementById("suggestionsRefreshBtn");
+      if (suggBtn) {
+        suggBtn.addEventListener("click", () => {
+          refreshSuggestions();
+        });
+      }
+
+      // Make Discover view cards collapsible with a round toggle button
+      const discoverCards = document.querySelectorAll("#view-discover .card");
+      discoverCards.forEach((card, idx) => {
+        const header = card.querySelector(".card-header");
+        if (!header) return;
+        if (card.classList.contains("collapsible-initialized")) return;
+
+        const body = document.createElement("div");
+        body.className = "card-body";
+
+        // Move all siblings after header into body
+        let node = header.nextSibling;
+        const toMove = [];
+        while (node) {
+          const next = node.nextSibling;
+          toMove.push(node);
+          node = next;
+        }
+        toMove.forEach((n) => body.appendChild(n));
+        card.appendChild(body);
+
+        // Create the round toggle button and place it at the end of the header
+        const toggleBtn = document.createElement("button");
+        toggleBtn.type = "button";
+        toggleBtn.className = "collapse-toggle";
+        toggleBtn.textContent = "▾";
+        header.insertBefore(toggleBtn, header.firstChild);
+
+        // Mark as collapsible
+        card.classList.add("collapsible", "collapsible-initialized");
+        // Default: keep Online Book Search open (by title), collapse others
+        const titleEl = header.querySelector("h2");
+        const titleText = titleEl ? titleEl.textContent.trim() : "";
+        const isOnlineSearch = titleText.indexOf("Online Book Search") !== -1;
+        const collapsed = isOnlineSearch ? false : true;
+        card.setAttribute("data-collapsed", collapsed ? "true" : "false");
+
+        const applyStateToButton = () => {
+          const isCollapsed = card.getAttribute("data-collapsed") === "true";
+          toggleBtn.textContent = isCollapsed ? "▸" : "▾";
+        };
+        applyStateToButton();
+
+        const toggle = () => {
+          const isCollapsed = card.getAttribute("data-collapsed") === "true";
+          card.setAttribute("data-collapsed", isCollapsed ? "false" : "true");
+          applyStateToButton();
+        };
+
+        header.addEventListener("click", (e) => {
+          // Avoid double toggles if click originated from inner controls in card-body
+          if (e.target.closest(".card-body")) return;
+          // Allow clicks anywhere in header (including button)
+          toggle();
+        });
+      });
+
+
+      document.getElementById("bottomNav").addEventListener("click", (e) => {
+        const btn = e.target.closest(".nav-btn");
+        if (!btn) return;
+        const view = btn.dataset.view;
+        if (!view) return;
+        setView(view);
+      });
+
+      document.getElementById("shelfTabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".tab");
+        if (!btn) return;
+        document.querySelectorAll("#shelfTabs .tab").forEach((t) => {
+          t.classList.toggle("active", t === btn);
+        });
+        renderShelves();
+      });
+
+      document.getElementById("searchInput").addEventListener("input", () => {
+        renderDiscover();
+      });
+
+      document.getElementById("isbnLookupBtn").addEventListener("click", () => {
+        lookupIsbnFromInput();
+      });
+
+      document.getElementById("scanBtn").addEventListener("click", () => {
+        openScanner();
+      });
+
+      document.getElementById("scanCloseBtn").addEventListener("click", () => {
+        closeScanner();
+      });
+
+      document.getElementById("onlineSearchBtn").addEventListener("click", () => {
+        searchOnlineBooks();
+      });
+
+      document.getElementById("onlineSearchInput").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          searchOnlineBooks();
+        }
+      });
+
+      document
+        .getElementById("quickAddBtn")
+        .addEventListener("click", () => {
+          const title = document.getElementById("quickTitle").value.trim();
+          const author = document.getElementById("quickAuthor").value.trim();
+          if (!title) {
+            alert("Title is required.");
+            return;
+          }
+          const book = {
+            id: "b" + Date.now(),
+            title: title,
+            author: author || "Unknown",
+            year: null,
+            shelf: "want",
+            rating: 0,
+            description: "",
+            coverUrl: "",
+            pagesRead: 0,
+            totalPages: null,
+            reviews: [],
+            addedAt: Date.now(),
+            finishedAt: null,
+            externalRating: 0,
+            externalRatingsCount: 0,
+            infoLink: ""
+          };
+          state.books.unshift(book);
+          document.getElementById("quickTitle").value = "";
+          document.getElementById("quickAuthor").value = "";
+          saveState();
+          setView("shelves");
+        });
+
+      document.getElementById("addBookBtn").addEventListener("click", () => {
+        const title = document.getElementById("addTitle").value.trim();
+        const author = document.getElementById("addAuthor").value.trim();
+        const year = document.getElementById("addYear").value.trim();
+        const pages = document.getElementById("addPages").value.trim();
+        const cover = document.getElementById("addCover").value.trim();
+        const description = document
+          .getElementById("addDescription")
+          .value.trim();
+
+        if (!title || !author) {
+          alert("Title and author are required.");
+          return;
+        }
+
+        const yearNum = year ? Number(year) : null;
+
+        const book = {
+          id: "b" + Date.now(),
+          title: title,
+          author: author,
+          year: yearNum && !isNaN(yearNum) ? yearNum : null,
+          shelf: "want",
+          rating: 0,
+          description: description,
+          coverUrl: cover,
+          pagesRead: 0,
+          totalPages: pages ? Number(pages) : null,
+          reviews: [],
+          addedAt: Date.now(),
+          finishedAt: null,
+          externalRating: 0,
+          externalRatingsCount: 0,
+          infoLink: ""
+        };
+        state.books.unshift(book);
+
+        document.getElementById("addTitle").value = "";
+        document.getElementById("addAuthor").value = "";
+        document.getElementById("addYear").value = "";
+        document.getElementById("addPages").value = "";
+        document.getElementById("addCover").value = "";
+        document.getElementById("addDescription").value = "";
+
+        saveState();
+        renderDiscover();
+        setView("shelves");
+      });
+
+      document
+        .getElementById("profileSaveBtn")
+        .addEventListener("click", () => {
+          const name = document.getElementById("profileName").value.trim();
+          const goalRaw = document.getElementById("profileGoal").value;
+          const goal = goalRaw ? Number(goalRaw) : 0;
+
+          if (!state.user) state.user = {};
+
+          state.user.name = name || "You";
+          updateBrandTitle();
+          state.user.yearlyGoal = goal;
+
+          const genreEls = document.querySelectorAll("#profileGenres .pill-option.active");
+          state.user.favoriteGenres = Array.from(genreEls).map((el) => el.dataset.value);
+
+          const formatEls = document.querySelectorAll("#profileFormats .pill-option.active");
+          state.user.preferredFormats = Array.from(formatEls).map((el) => el.dataset.value);
+
+          const paceEl = document.querySelector("#profilePace .pill-option.active");
+          state.user.readingPace = paceEl ? paceEl.dataset.value : "Steady";
+
+          const favAuthorsInput = document.getElementById("profileFavoriteAuthors");
+          state.user.favoriteAuthors = favAuthorsInput ? favAuthorsInput.value.trim() : "";
+
+          saveState();
+          alert("Profile saved.");
+        });
+
+      document.getElementById("wipeDataBtn").addEventListener("click", () => {
+        if (
+          confirm(
+            "This will remove all books and settings stored in this browser. Continue?"
+          )
+        ) {
+          localStorage.removeItem(STORAGE_KEY);
+          state = {
+            books: [],
+            user: { name: "You", yearlyGoal: 20, booksReadThisYear: 0 },
+          };
+          seedSampleData();
+        }
+      });
+
+      document.getElementById("modalCloseBtn").addEventListener("click", () => {
+        closeBookModal();
+      });
+
+      document.getElementById("onlineModalCloseBtn").addEventListener("click", () => {
+        closeOnlineResultDetails();
+      });
+
+      document.getElementById("onlineModalBackdrop").addEventListener("click", (e) => {
+        if (e.target.id === "onlineModalBackdrop") {
+          closeOnlineResultDetails();
+        }
+      });
+
+      document.getElementById("onlineModalAddBtn").addEventListener("click", () => {
+        addCurrentOnlineResultToLibrary();
+      });
+
+
+      document
+        .getElementById("modalBackdrop")
+        .addEventListener("click", (e) => {
+          if (e.target.id === "modalBackdrop") {
+            closeBookModal();
+          }
+        });
+
+      document
+        .getElementById("modalStars")
+        .addEventListener("click", (e) => {
+          const span = e.target.closest("span");
+          if (!span || !currentBookId) return;
+          const rating = Number(span.getAttribute("data-rating"));
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          book.rating = rating;
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalSaveProgressBtn")
+        .addEventListener("click", () => {
+          if (!currentBookId) return;
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          const pagesReadRaw =
+            document.getElementById("modalPagesRead").value.trim();
+          const totalPagesRaw =
+            document.getElementById("modalTotalPages").value.trim();
+
+          if (totalPagesRaw) book.totalPages = Number(totalPagesRaw);
+          if (pagesReadRaw) book.pagesRead = Number(pagesReadRaw);
+          else book.pagesRead = 0;
+
+          if (
+            book.totalPages &&
+            book.pagesRead >= book.totalPages &&
+            book.shelf !== "read"
+          ) {
+            book.shelf = "read";
+            if (!book.finishedAt) {
+              book.finishedAt = new Date().getFullYear();
+              state.user.booksReadThisYear =
+                (state.user.booksReadThisYear || 0) + 1;
+            }
+          }
+
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalAddReviewBtn")
+        .addEventListener("click", () => {
+          if (!currentBookId) return;
+          const text = document
+            .getElementById("modalReviewText")
+            .value.trim();
+          if (!text) return;
+          const book = state.books.find((b) => b.id === currentBookId);
+          if (!book) return;
+          if (!book.reviews) book.reviews = [];
+          book.reviews.push({ text: text, createdAt: Date.now() });
+          saveState();
+          openBookModal(book.id);
+        });
+
+      document
+        .getElementById("modalShareBtn")
+        .addEventListener("click", () => {
+          shareCurrentBook();
+        });
+
+      document
+        .getElementById("modalDeleteBtn")
+        .addEventListener("click", () => {
+          deleteCurrentBook();
+        });
+
+      document
+        .getElementById("modalOnlineDetailsBtn")
+        .addEventListener("click", () => {
+          enrichCurrentBookFromOnline();
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadState();
+      initEventListeners();
+      renderAll();
+    });
+  </script>
+</body>
+</html>
